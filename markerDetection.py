@@ -46,9 +46,18 @@ def detect_all_circles(directory):
 
         gray = cv.cvtColor(src2, cv.COLOR_BGR2GRAY)
         gray = cv.GaussianBlur(gray, (3, 3), sigmaX=0, sigmaY=0)
+        gray = cv.equalizeHist(gray)
         #gray = cv.medianBlur(gray, 7)
-        circles = cv.HoughCircles(gray, cv1.CV_HOUGH_GRADIENT, dp=1, minDist=gray.shape[0]/4,
-                              param1=130, param2=15, minRadius=5, maxRadius=15)
+        circles = cv.HoughCircles(gray, cv1.CV_HOUGH_GRADIENT, dp=1, minDist=gray.shape[0]/8,
+                              param1=130, param2=15, minRadius=7, maxRadius=15)
+        '''
+        Optimal parameters:
+            minDist = rows/4
+            param1 = 130
+            param2 = 15
+            minRadius = 8
+            maxRadius = 15
+        '''
 
         cimage = src2.copy()
         if circles is not None:
@@ -66,7 +75,7 @@ def detect_all_circles(directory):
         else:
             index += 1
 
-        k = cv.waitKey(10) & 0XFF
+        k = cv.waitKey(100) & 0XFF
         if k == 27:
             cv.destroyAllWindows()
             break
@@ -115,17 +124,71 @@ def filtering(image):
             break
 
 
+def diff_frame(frame1, frame2):
+    im1 = cv.cvtColor(frame1, cv.COLOR_BGR2GRAY)
+    im2 = cv.cvtColor(frame2, cv.COLOR_BGR2GRAY)
+    im1 = cv.GaussianBlur(im1, (3, 3), sigmaY=0, sigmaX=0)
+    im2 = cv.GaussianBlur(im2, (3, 3), sigmaY=0, sigmaX=0)
+    diff = cv.absdiff(im1, im2)
+    kernel = np.ones((3,3),np.uint8)
+    opening = cv.morphologyEx(50,cv.MORPH_OPEN,kernel, iterations = 2)
+    cv.namedWindow("Difference", cv.WINDOW_NORMAL)
+    cv.namedWindow("Dilatation", cv.WINDOW_NORMAL)
+    cv.imshow("Difference", diff)
+    cv.imshow("Dilatation", opening)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+
+def histogram_eq(image):
+    im = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    eq = cv.equalizeHist(im)
+    cv.namedWindow("HistogramEqualized", cv.WINDOW_NORMAL)
+    cv.namedWindow("Normal Image", cv.WINDOW_NORMAL)
+    cv.imshow("HistogramEqualized", eq)
+    cv.imshow("Normal Image", im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    return eq
+
+
+def sharpen(image):
+    im = cv.GaussianBlur(image, (7, 7), 5)
+    sharp = cv.addWeighted(image, 1.5, im, -0.5, 0)
+    cv.namedWindow("Normal", cv.WINDOW_NORMAL)
+    cv.namedWindow("Sharp", cv.WINDOW_NORMAL)
+    cv.imshow("Normal", image)
+    cv.imshow("Sharp", sharp)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+
+def detect_background(frame1, frame2):
+    f1 = histogram_eq(frame1)
+    f2 = histogram_eq(frame2)
+
+    diff_frame(f1, f2)
+
+
+
+
 def main():
     print "OpenCV version: ", cv.__version__
     cv.destroyAllWindows()
-    dir_name = "images/images_azul/"
-    files1 = np.array(glob.glob(dir_name + "c1_image*.png"))
-    files2 = np.array(glob.glob(dir_name + "c2_image*.png"))
+    dir_name = "images/images_rojo/"
+    files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
+    files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
     src2 = cv.imread(files2[0])
 
-    detect_all_circles(dir_name)
-    filtering(src2)
+    #detect_all_circles(dir_name)
+    #filtering(src2)
 
+    f1 = cv.imread(files2[0])
+    f2 = cv.imread(files2[1])
+    #diff_frame(f1, f2)
+    #histogram_eq(f1)
+    #sharpen(f1)
+    #detect_background(f1, f2)
 
 if __name__ == "__main__":
     main()
