@@ -5,6 +5,7 @@ import numpy as np
 import cv as cv1
 import cv2 as cv
 import glob
+import Color as color
 
 
 def detect_circles(image):
@@ -238,14 +239,22 @@ def detect_background(frame1, frame2):
 def main():
     print "OpenCV version: ", cv.__version__
     cv.destroyAllWindows()
-    dir_name = "images/images_verde/"
+    dir_name = "images/images_azul/"
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
-    src2 = cv.imread(files2[25])
+    src2 = cv.imread(files2[0])
 
-    detect_all_circles(dir_name)
+    #detect_all_circles(dir_name)
     #detect_circles(src2)
     #filtering(src2)
+
+    sph1 = cv.imread("images/blue_sphere_00.png")
+    sph2 = cv.imread("images/blue_sphere_01.png")
+    #color.histogram_hsv(sph1, sph2)
+    #color.histogram_ycc(sph1)
+    for f in files2:
+        frame = cv.imread(f)
+        color.color_mask(frame)
 
     f1 = cv.imread(files2[0])
     f2 = cv.imread(files2[1])
