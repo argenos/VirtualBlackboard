@@ -13,7 +13,7 @@ import numpy as np
 
 #cap = cv2.VideoCapture(0)
 #img = 'images_azul/c2_image0.png'
-img = 'images_rojo/c2_image0.png'
+img = 'images/images_rojo/c2_image00.png'
 #img = 'images_verde/c2_image0.png'
 im = cv2.imread(img)
 im1 = cv2.resize(im,(640,480))
