@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-img1 = 'images_azul/c2_image0.png'
+img1 = 'images/images_azul/c2_image00.png'
 im1 = cv2.imread(img1)
 #im1 = cv2.resize(im1,(640,480))
 im1 = cv2.GaussianBlur(im1,(5,5),0)
@@ -32,3 +32,6 @@ plt.title("Histogram")
 plt.xlabel("Bins")
 plt.ylabel("# of Pixels")
 plt.show()
+
+
+cv2.imshow("Select marker",im2)
