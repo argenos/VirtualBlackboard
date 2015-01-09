@@ -49,18 +49,15 @@ def detect_circles(image):
     for c in xrange(len(countour)):
         cv.drawContours(cimage3, contours=countour, contourIdx=c, color=(0,10*c,0), lineType=cv.CV_AA)
 
-    cv.namedWindow("Filtered", cv.WINDOW_NORMAL)
-    cv.imshow("Filtered", filtered)
-    cv.namedWindow("Gray", cv.WINDOW_NORMAL)
-    cv.imshow("Gray", gray_im)
-    cv.namedWindow("Erode", cv.WINDOW_NORMAL)
-    cv.imshow("Erode", er)
-    cv.namedWindow("Dilate", cv.WINDOW_NORMAL)
-    cv.imshow("Dilate", dil)
-    cv.namedWindow("Canny", cv.WINDOW_NORMAL)
-    cv.imshow("Canny", cann)
-    cv.namedWindow("Processing", cv.WINDOW_NORMAL)
-    cv.imshow("Processing", final)
+    cv.namedWindow("Original-Filtered", cv.WINDOW_NORMAL)
+    a = np.hstack((image, filtered))
+    cv.imshow("Original-Filtered", a)
+
+    cv.namedWindow("Erode-Dilate\nCanny-Final", cv.WINDOW_NORMAL)
+    b = np.hstack((er, dil))
+    c = np.hstack((cann, final))
+    d = np.vstack((b, c))
+    cv.imshow("Erode-Dilate\nCanny-Final", d)
 
     cv.namedWindow("Circles1", cv.WINDOW_NORMAL)
     cv.imshow("Circles1", cimage)
@@ -182,14 +179,16 @@ def diff_frame(frame1, frame2):
     im1 = cv.GaussianBlur(im1, (3, 3), sigmaY=0, sigmaX=0)
     im2 = cv.GaussianBlur(im2, (3, 3), sigmaY=0, sigmaX=0)
     diff = cv.absdiff(im1, im2)
-    kernel = np.ones((3,3),np.uint8)
-    opening = cv.morphologyEx(50,cv.MORPH_OPEN,kernel, iterations = 2)
+    kernel = np.ones((3,3), np.uint8)
+    opening = cv.morphologyEx(diff, cv.MORPH_OPEN, kernel, iterations = 1)
     cv.namedWindow("Difference", cv.WINDOW_NORMAL)
     cv.namedWindow("Dilatation", cv.WINDOW_NORMAL)
     cv.imshow("Difference", diff)
     cv.imshow("Dilatation", opening)
     cv.waitKey(0)
     cv.destroyAllWindows()
+
+    return diff
 
 
 def histogram_eq(image):
@@ -230,10 +229,38 @@ def sharpen(image, show):
 
 
 def detect_background(frame1, frame2):
-    f1 = histogram_eq(frame1)
-    f2 = histogram_eq(frame2)
+    f1 = cv.cvtColor(frame1, cv.COLOR_BGR2GRAY)
+    f2 = cv.cvtColor(frame2, cv.COLOR_BGR2GRAY)
+    f1 = cv.equalizeHist(f1)
+    f2 = cv.equalizeHist(f2)
+    f1 = cv.GaussianBlur(f1, (5, 5), 5)
+    f2 = cv.GaussianBlur(f2, (5, 5), 5)
+    diff = cv.absdiff(f1, f2)
+    transform = cv.dilate(diff, kernel=(5, 5), iterations=10)
+    transform = cv.erode(transform, kernel=(5, 5), iterations=10)
+    ret, binary = cv.threshold(transform, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
+    closing = cv.morphologyEx(binary, kernel=(5, 5), op=cv.MORPH_DILATE, iterations=10)
+    mask = cv.medianBlur(closing, 9)
 
-    diff_frame(f1, f2)
+    masked_im = cv.bitwise_and(frame1, frame1, mask=mask)
+
+    cv.namedWindow("Original", cv.WINDOW_NORMAL)
+    original = np.vstack((f1, f2))
+    cv.imshow("Original", original)
+    cv.namedWindow("Difference-Transformation", cv.WINDOW_NORMAL)
+    t = np.hstack((diff, transform))
+    cv.imshow("Difference-Transformation", t)
+    cv.namedWindow("Otsu", cv.WINDOW_NORMAL)
+    cv.imshow("Otsu", binary)
+    cv.namedWindow("Closed Image and Mask", cv.WINDOW_NORMAL)
+    masking = np.hstack((closing, mask))
+    cv.imshow("Closed Image and Mask", masking)
+    cv.namedWindow("Masked Image", cv.WINDOW_NORMAL)
+    cv.imshow("Masked Image", masked_im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+    return masked_im
 
 
 def main():
@@ -242,26 +269,31 @@ def main():
     dir_name = "images/images_azul/"
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
-    src2 = cv.imread(files2[0])
+    src2 = cv.imread(files1[40])
 
     #detect_all_circles(dir_name)
-    #detect_circles(src2)
+    detect_circles(src2)
     #filtering(src2)
 
     sph1 = cv.imread("images/blue_sphere_00.png")
     sph2 = cv.imread("images/blue_sphere_01.png")
     #color.histogram_hsv(sph1, sph2)
+    #bp = color.back_projection(src2)
+    #detect_circles(bp)
     #color.histogram_ycc(sph1)
-    for f in files2:
+    '''
+    for f in files1:
         frame = cv.imread(f)
-        color.color_mask(frame)
+        #color.color_mask(frame)
+    '''
 
-    f1 = cv.imread(files2[0])
-    f2 = cv.imread(files2[1])
+    f1 = cv.imread(files1[40])
+    f2 = cv.imread(files1[41])
     #diff_frame(f1, f2)
     #histogram_eq(f1)
     #sharpen(f1)
-    #detect_background(f1, f2)
+    maskedIm = detect_background(f1, f2)
+    detect_circles(maskedIm)
 
 if __name__ == "__main__":
     main()

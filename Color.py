@@ -41,6 +41,38 @@ def color_mask(image):
     cv2.destroyAllWindows()
 
 
+def back_projection(frame):
+    src1_histogram = cv2.imread("images/blue_sphere_00.png")
+    src2_histogram = cv2.imread("images/blue_sphere_01.png")
+    src1_histogram = cv2.cvtColor(src1_histogram, cv2.COLOR_BGR2HSV)
+    src2_histogram = cv2.cvtColor(src2_histogram, cv2.COLOR_BGR2HSV)
+
+    h1 = cv2.calcHist([src1_histogram], [0, 1], None, [180, 256], [0, 180, 0, 256])
+    cv2.normalize(h1, h1, 0, 255, cv2.NORM_MINMAX)
+    h2 = cv2.calcHist([src2_histogram], [0, 1], None, [180, 256], [0, 180, 0, 256])
+    cv2.normalize(h2, h2, 0, 255, cv2.NORM_MINMAX)
+
+    histogram = np.add(h1, h2)
+
+    hue = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    backproj = cv2.calcBackProject([hue], [0, 1], h1, [0, 180, 0, 256], 1)
+
+    disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    cv2.filter2D(backproj, -1, disc, backproj)
+
+    # threshold and binary AND
+    ret, thresh = cv2.threshold(backproj, 100, 255, 0)
+    thresh = cv2.merge((thresh, thresh, thresh))
+    res = cv2.bitwise_and(frame, thresh)
+
+    cv2.namedWindow("BackProjection", cv2.WINDOW_NORMAL)
+    cv2.imshow("BackProjection", res)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    return res
+
+
 def histogram_rgb(image):
     #Histogram calculation
     plt.figure()
@@ -58,12 +90,12 @@ def histogram_rgb(image):
 def histogram_hsv(image1, image2):
     im = cv2.cvtColor(image1, cv2.COLOR_BGR2HSV)
     h = cv2.calcHist([im], [0], None, [180], [0, 180])
-    s = cv2.calcHist([im], [1], None, [256], [0, 256])
-    v = cv2.calcHist([im], [2], None, [256], [0, 256])
+    s = cv2.calcHist([im], [1], None, [255], [0, 256])
+    v = cv2.calcHist([im], [2], None, [255], [0, 256])
     im = cv2.cvtColor(image2, cv2.COLOR_BGR2HSV)
     h += cv2.calcHist([im], [0], None, [180], [0, 180])
-    s += cv2.calcHist([im], [1], None, [256], [0, 256])
-    v += cv2.calcHist([im], [2], None, [256], [0, 256])
+    s += cv2.calcHist([im], [1], None, [255], [0, 256])
+    v += cv2.calcHist([im], [2], None, [255], [0, 256])
 
     plt.figure()
     plt.plot(h, 'r', label='Hue')
