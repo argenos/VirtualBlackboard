@@ -40,6 +40,20 @@ def color_mask(image):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def getColorMask(image,c):
+    im1 = cv2.GaussianBlur(image, (5, 5), 0)
+    hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
+    if c == 'b':
+        mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    elif c == 'r':
+        mask = cv2.inRange(hsv, lower_red, upper_red)
+    elif c == 'g':
+        mask = cv2.inRange(hsv, lower_green, upper_green)
+
+    res = cv2.bitwise_and(im1, im1, mask=mask)
+    
+    return res
+    
 
 def back_projection(frame):
     src1_histogram = cv2.imread("images/blue_sphere_00.png")
