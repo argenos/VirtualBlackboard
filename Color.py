@@ -13,10 +13,10 @@ from matplotlib import pyplot as plt
 
 
 # define range of blue color in HSV
-#lower_blue = np.array([92,  39, 146], dtype="uint8")
-#upper_blue = np.array([114,  95, 255], dtype="uint8")
-lower_blue = np.array([92,  20, 110], dtype="uint8")
-upper_blue = np.array([114,  100, 255], dtype="uint8")
+lower_blue = np.array([92,  39, 146], dtype="uint8")
+upper_blue = np.array([114,  95, 255], dtype="uint8")
+#lower_blue = np.array([92,  20, 110], dtype="uint8")
+#upper_blue = np.array([114,  100, 255], dtype="uint8")
 # define range of red color in HSV
 lower_red = np.array([0, 6, 228], dtype="uint8")
 upper_red = np.array([179, 122, 255], dtype="uint8")

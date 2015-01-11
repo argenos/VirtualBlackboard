@@ -12,9 +12,9 @@ import cv2
 import numpy as np
 
 #cap = cv2.VideoCapture(0)
-#img = 'images_azul/c2_image0.png'
-img = 'images/images_rojo/c2_image00.png'
-#img = 'images_verde/c2_image0.png'
+img = 'images/images_azul/c2_image00.png'
+#img = 'images/images_rojo/c2_image00.png'
+#img = 'images/images_verde/c2_image00.png'
 im = cv2.imread(img)
 im1 = cv2.resize(im,(640,480))
 im1 = cv2.GaussianBlur(im1,(5,5),0)
@@ -27,12 +27,12 @@ hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
 
 # define range of blue color in HSV
 #blue
-#lower = np.array([ 92,  39, 146],dtype="uint8")
-#upper = np.array([114,  95, 255],dtype="uint8")
+lower = np.array([ 92,  39, 146],dtype="uint8")
+upper = np.array([114,  95, 255],dtype="uint8")
 
 #red
-lower = np.array([0,6,228],dtype="uint8")
-upper = np.array([179,122,255],dtype="uint8")
+#lower = np.array([0,6,228],dtype="uint8")
+#upper = np.array([179,122,255],dtype="uint8")
 
 #green
 #lower = np.array([ 37, 16, 186],dtype="uint8")
@@ -72,6 +72,6 @@ while(1):
     upper[1]=cv2.getTrackbarPos("Su","HSV result")
     upper[2]=cv2.getTrackbarPos("Vu","HSV result")
     
-print lower
+print 'np.array(['+np.str(lower[0])+', '+np.str(lower[1])+', '+np.str(lower[2])+'])'
 print upper    
 cv2.destroyAllWindows()
