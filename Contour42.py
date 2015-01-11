@@ -8,7 +8,7 @@ Created on Sat Jan 10 22:32:41 2015
 import numpy as np
 import cv
 import cv2
-import ROISelection as r
+import ROI42 as r
 import Color as color
 
 
@@ -97,24 +97,28 @@ def getMarker(img):
     return center, radius
     
 
-def getImgWithMarker(original,roi,c):
+def getImgWithMarker(original,roi,c,returnMarker=False):
     '''
     Receives an image cropped 
     '''
     org = original.copy()
     img = getCroppedImage(org,roi)
+    crop = img.copy()
     imc = color.getColorMask(img,c) 
     imgray = cv2.cvtColor(imc,cv2.COLOR_HSV2BGR)
     center,radius = getMarker(imgray)
     cv2.circle(img,center,radius,(255,0,0),2)
     org[roi[1]:roi[3],roi[0]:roi[2]]=img
     
-    return org
+    if returnMarker:
+        return org,img,crop,center,radius
+    else:
+        return org
     
 
     
 def main():
-    ex = cv2.imread('images/images_azul/c2_image04.png')
+    ex = cv2.imread('images/images_azul/c2_image00.png')
     ex = cv2.GaussianBlur(ex, (3, 3), 0)
     roi1,roi2 = init(ex)
     
