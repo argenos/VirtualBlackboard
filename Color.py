@@ -15,8 +15,6 @@ from matplotlib import pyplot as plt
 # define range of blue color in HSV
 lower_blue = np.array([92,  39, 146], dtype="uint8")
 upper_blue = np.array([114,  95, 255], dtype="uint8")
-#lower_blue = np.array([92,  20, 110], dtype="uint8")
-#upper_blue = np.array([114,  100, 255], dtype="uint8")
 # define range of red color in HSV
 lower_red = np.array([0, 6, 228], dtype="uint8")
 upper_red = np.array([179, 122, 255], dtype="uint8")
@@ -25,22 +23,31 @@ lower_green = np.array([37, 16, 186], dtype="uint8")
 upper_green = np.array([118, 184, 255], dtype="uint8")
 
 
-def color_mask(image):
-    im1 = cv2.GaussianBlur(image, (5, 5), 0)
-    #histogram_rgb(im1)
+def color_mask(image, color, display):
+    #im1 = cv2.GaussianBlur(image, (5, 5), 0)
+    im1 = image.copy()
     # Convert BGR to HSV
     hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
     # Threshold the HSV image to get only blue colors
-    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    if color == 'b':
+        mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    elif color == 'r':
+        mask = cv2.inRange(hsv, lower_red, upper_red)
+    elif color == 'g':
+        mask = cv2.inRange(hsv, lower_green, upper_green)
     # Bitwise-AND mask and original image
-    res = cv2.bitwise_and(im1, im1, mask=mask)
+    color_masked = cv2.bitwise_and(im1, im1, mask=mask)
 
-    cv2.namedWindow("HSV MASK", cv2.WINDOW_NORMAL)
-    cv2.imshow("HSV MASK", res)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if display:
+        cv2.namedWindow("HSV MASK", cv2.WINDOW_NORMAL)
+        cv2.imshow("HSV MASK", color_masked)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-def getColorMask(image,c):
+    return color_masked
+
+
+def getColorMask(image, c):
     im1 = cv2.GaussianBlur(image, (5, 5), 0)
     hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
     if c == 'b':

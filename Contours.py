@@ -11,13 +11,14 @@ import cv2
 import ROISelection as r
 import Color as color
 
-im = cv2.imread('images/images_azul/c2_image30.png')
+im = cv2.imread('images/images_azul/c1_image40.png')
 im = cv2.GaussianBlur(im, (3, 3), 0)
 #im = cv2.resize(im,(640,480))
 
 x1, y1, x2, y2 = r.getROI(im)
 
 im = im[y1:y2,x1:x2]
+orig = im.copy()
 color.color_mask(im)
 im = color.getColorMask(im,'b')
 
@@ -57,7 +58,7 @@ cv2.destroyAllWindows()
 
 
 #contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
 #cv2.drawContours(imgray, contours, -1, (255,0,0), 4)
 
@@ -77,10 +78,10 @@ cnt = contours[i-1]
 (x,y),radius = cv2.minEnclosingCircle(cnt)
 center = (int(x),int(y))
 radius = int(radius)
-img = cv2.circle(imgray,center,radius,(255,255,255),1)
+cv2.circle(orig, center, radius, (10,10,255), 3)
 
-
-cv2.imshow("Contours", imgray)
+cv2.namedWindow("Contours", cv2.WINDOW_NORMAL)
+cv2.imshow("Contours", orig)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

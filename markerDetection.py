@@ -6,6 +6,7 @@ import cv as cv1
 import cv2 as cv
 import glob
 import Color as color
+import ROISelection as roi
 
 
 def detect_circles(image):
@@ -263,20 +264,89 @@ def detect_background(frame1, frame2):
     return masked_im
 
 
+def circles_by_contour(image, full_dislplay):
+    im = cv.GaussianBlur(image, (5, 5), 0)
+
+    x = np.array([0, 0])
+    y = np.array([0, 0])
+    #x[0], y[0], x[1], y[1] = roi.getROI(im)
+    x[1] = image.shape[1]
+    y[1] = image.shape[0]
+
+    copy = im.copy()
+    mask = np.zeros((image.shape[0], image.shape[1], 3))
+    mask[y[0]:y[1], x[0]:x[1], :] = 1
+    masked = cv.multiply(copy, mask, dtype=cv.CV_8U)
+    cropped = im.copy()
+    cropped = cropped[y[0]:y[1], x[0]:x[1]]
+
+    color_mask = color.color_mask(cropped, color='b', display=full_dislplay)
+    gray = cv.cvtColor(color_mask, cv.COLOR_HSV2BGR)
+    #sharp = sharpen(gray, show=True)
+    #equal = histogram_eq(gray)
+    gray = cv.cvtColor(gray, cv.COLOR_BGR2GRAY)
+
+    ret, thresh = cv.threshold(gray, 120, 255, cv.THRESH_BINARY)
+
+    if full_dislplay:
+        cv.namedWindow("HSVMask, Threshold", cv.WINDOW_NORMAL)
+        cv.imshow("HSVMask, Threshold", np.hstack((gray, thresh)))
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+
+    contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
+    i = 0
+    index = 0
+    biggest_area = 0
+    for cnt in contours:
+        area = cv.contourArea(cnt)
+        if area >= biggest_area:
+            biggest_area = area
+            index = i
+        i += 1
+
+    (x_c, y_c), radius = cv.minEnclosingCircle(contours[index])
+    #Relative Circle
+    center = (int(x_c), int(y_c))
+    radius = int(radius)
+
+    #Absolute Center
+    center_abs = (int(x_c) + x[0], int(y_c) + y[0])
+
+    cv.circle(copy, center_abs, radius, (10, 10, 255), 2)
+    print "Center: ", center_abs
+    cv.imshow("Marker", copy)
+    #cv.waitKey(0)
+    #cv.destroyAllWindows()
+
+
 def main():
-    print "OpenCV version: ", cv.__version__
+    print "VIRTUAL BOARD\n\n"
     cv.destroyAllWindows()
+
     dir_name = "images/images_azul/"
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
+
+    cv.namedWindow("Marker", cv.WINDOW_NORMAL)
+    total_frames = len(files1)
+    frame_number = 0
+    while frame_number < total_frames:
+        circles_by_contour(cv.imread(files2[frame_number]), full_dislplay=False)
+        k = cv.waitKey(10) & 0XFF
+        if k == 27:
+            cv.destroyAllWindows()
+            break
+        frame_number += 1
+
     src2 = cv.imread(files1[40])
-
-    #detect_all_circles(dir_name)
-    detect_circles(src2)
-    #filtering(src2)
-
     sph1 = cv.imread("images/blue_sphere_00.png")
     sph2 = cv.imread("images/blue_sphere_01.png")
+
+    #detect_all_circles(dir_name)
+    #detect_circles(src2)
+    #filtering(src2)
+
     #color.histogram_hsv(sph1, sph2)
     #bp = color.back_projection(src2)
     #detect_circles(bp)
@@ -292,8 +362,8 @@ def main():
     #diff_frame(f1, f2)
     #histogram_eq(f1)
     #sharpen(f1)
-    maskedIm = detect_background(f1, f2)
-    detect_circles(maskedIm)
+    #maskedIm = detect_background(f1, f2)
+    #detect_circles(maskedIm)
 
 if __name__ == "__main__":
     main()
