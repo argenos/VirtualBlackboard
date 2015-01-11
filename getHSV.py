@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 
 #cap = cv2.VideoCapture(0)
-img = 'images/images_azul/c2_image00.png'
+img = 'images/images_rojo/c1_image00.png'
 #img = 'images/images_rojo/c2_image00.png'
 #img = 'images/images_verde/c2_image00.png'
 im = cv2.imread(img)
@@ -24,6 +24,7 @@ cv2.imshow("Original Image",im1)
 
 # Convert BGR to HSV
 hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
+#hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2YCR_CB)
 
 # define range of blue color in HSV
 #blue
