@@ -90,7 +90,7 @@ def getROI(img):
 
 def main():
     print "ROI SELECTION SCRIPT"
-
+            
 
 if __name__ == '__main__':
     main()
