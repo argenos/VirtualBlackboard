@@ -83,9 +83,10 @@ def getROI(img):
         if key == 27: 
             break
         elif key == ord("s"):
+            cv2.destroyAllWindows()
             return _x1, _y1, _x2, _y2
             
-    cv2.destroyAllWindows()
+    
 
 if __name__ == '__main__':
     getROI(im1)
