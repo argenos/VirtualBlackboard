@@ -17,8 +17,9 @@ def playSingleVideo(path, mask=True):
     i = 0
     while True:
         im = cv2.imread(path+'c1_image%.2d.png'%i)
-        img = cv2.resize(im,(640,480))
+        
         if mask:
+            img = cv2.resize(im,(640,480))
             img = color.getColorMask(img,'b')
         cv2.imshow("Picture",img)
         i = i + 1
@@ -30,17 +31,15 @@ def playSingleVideo(path, mask=True):
     
     cv2.destroyAllWindows()
     
-def playTwoVideos(path, mask=True):
+def playTwoVideos(path, mask=False, marker=True):
     i = 0
     while True:
         im1 = cv2.imread(path+'c1_image%.2d.png'%i)
-        img1 = cv2.resize(im1,(640,480))
-        
         im2 = cv2.imread(path+'c2_image%.2d.png'%i)
-        img2 = cv2.resize(im2,(640,480))
-        
         
         if mask:
+            img1 = cv2.resize(im1,(640,480))
+            img2 = cv2.resize(im2,(640,480))
             img1 = color.getColorMask(img1,'b')
             img2 = color.getColorMask(img2,'b')
         

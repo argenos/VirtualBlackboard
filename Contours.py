@@ -14,11 +14,18 @@ import Color as color
 
 
 
-def init(img):
-    x1, y1, x2, y2 = r.getROI(img)
-    return x1,y1,x2,y2
+def init(img, img2=None):
+    roi1 = r.getROI(img)
+    
+    if img2==None:
+        roi2 = ()
+        return roi1,roi2
+    else:
+        roi2 = r.getROI(img2)
+        return roi1,roi2
 
-def getCroppedImage(img, x1,y1,x2,y2):
+def getCroppedImage(img, roi):
+    x1, y1, x2, y2 = roi
     i = img[y1:y2,x1:x2]
     return i
     
@@ -59,7 +66,18 @@ def paintContour(img, t=False, c=False):
     
     return img
 
+def hasContour(img):
+    imgray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    ret,thresh = cv2.threshold(imgray,127,255,cv2.THRESH_BINARY)
+    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+    if contours ==None:
+        return False
+    return True
+
 def getMarker(img):
+    '''
+    Receives an image in BGR
+    '''
     imgray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     ret,thresh = cv2.threshold(imgray,127,255,cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)    
@@ -78,31 +96,33 @@ def getMarker(img):
     
     return center, radius
     
+
+def getImgWithMarker(original,roi,c):
+    '''
+    Receives an image cropped 
+    '''
+    org = original.copy()
+    img = getCroppedImage(org,roi)
+    imc = color.getColorMask(img,c) 
+    imgray = cv2.cvtColor(imc,cv2.COLOR_HSV2BGR)
+    center,radius = getMarker(imgray)
+    cv2.circle(img,center,radius,(255,0,0),2)
+    org[roi[1]:roi[3],roi[0]:roi[2]]=img
+    
+    return org
+    
+
     
 def main():
     ex = cv2.imread('images/images_azul/c2_image04.png')
     ex = cv2.GaussianBlur(ex, (3, 3), 0)
-    x1, y1, x2, y2 = init(ex)
-    print x1,y1,x2,y2
-    im = getCroppedImage(ex, x1, y1, x2, y2)        
-    #color.color_mask(im)
-    imc = color.getColorMask(im,'b')    
-    '''
-    cv2.namedWindow("Color", cv2.WINDOW_NORMAL)
-    cv2.imshow("Color",im)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    '''
-    imgray = cv2.cvtColor(imc,cv2.COLOR_HSV2BGR)
-    paintContour(imgray, c=True)
+    roi1,roi2 = init(ex)
     
-    center,radius = getMarker(imgray)
-    img = cv2.circle(im,center,radius,(255,0,0),2)
+    x1, y1, x2, y2 = roi1
+    im=getImgWithMarker(ex,roi1,'b')
+    img = cv2.resize(im,(640,480))
     
-    ex[y1:y2,x1:x2]=im 
-    ex = cv2.resize(ex,(640,480))
-    
-    cv2.imshow("Marker detection",ex)
+    cv2.imshow("Marker detection",img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
