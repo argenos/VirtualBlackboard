@@ -24,6 +24,7 @@ cv2.imshow("Original Image",im1)
 
 # Convert BGR to HSV
 hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
+#hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2YCR_CB)
 
 # define range of blue color in HSV
 #blue

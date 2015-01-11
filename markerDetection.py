@@ -72,7 +72,7 @@ def detect_circles(image):
     return circles
 
 
-def detect_all_circles(directory):
+def detect_by_hough(directory):
     files1 = sorted(np.array(glob.glob(directory + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(directory + "c2_image*.png")))
     cv.namedWindow("Circles", cv.WINDOW_NORMAL)
@@ -102,16 +102,16 @@ def detect_all_circles(directory):
             maxRadius = 15
         '''
 
-        cimage = src2.copy()
+        c_image = src2.copy()
         if circles is not None:
             circles = np.uint16(np.around(circles))
             for i in circles[0,:]:
                 # draw the outer circle
-                cv.circle(cimage, (i[0],i[1]), i[2], (0,0,255), 2)
+                cv.circle(c_image, (i[0],i[1]), i[2], (0,0,255), 2)
                 # draw the center of the circle
-                cv.circle(cimage, (i[0],i[1]), 2, (200,20,200), 3)
+                cv.circle(c_image, (i[0],i[1]), 2, (200,20,200), 3)
 
-        cv.imshow("Circles", cimage)
+        cv.imshow("Circles", c_image)
 
         if index == n_frames-1:
             index = 0
@@ -143,14 +143,10 @@ def filtering(image):
     def bilateral_filter(original_image, size):
         return cv.bilateralFilter(original_image, size+1, (size+1)**2, (size+1)/2)
 
-    def pyramidal_filter(original_image, size):
-        #return cv.pyrMeanShiftFiltering(original_image, sp=3, sr=size, maxLevel=2)
-        return color_image
-
     cv.namedWindow("Smoothing", cv.WINDOW_NORMAL)
     cv.createTrackbar("Kernel", "Smoothing", 0, 9, nothing)
-    filter_type = "0: Blur\n1: Gaussian\n2: Median\n3: Bilateral\n4: Pyramidal"
-    cv.createTrackbar(filter_type, "Smoothing", 0, 4, nothing)
+    filter_type = "0: Blur\n1: Gaussian\n2: Median\n3: Bilateral"
+    cv.createTrackbar(filter_type, "Smoothing", 0, 3, nothing)
 
     while True:
         f_type = cv.getTrackbarPos(filter_type, "Smoothing")
@@ -161,10 +157,8 @@ def filtering(image):
             im_filtered = gaussian_filter(image, kernel)
         elif f_type == 2:
             im_filtered = median_filter(image, kernel)
-        elif f_type == 3:
-            im_filtered = bilateral_filter(image, kernel)
         else:
-            im_filtered = pyramidal_filter(color_image, kernel)
+            im_filtered = bilateral_filter(image, kernel)
 
         cv.imshow("Smoothing", im_filtered)
 
@@ -174,22 +168,22 @@ def filtering(image):
             break
 
 
-def diff_frame(frame1, frame2):
+def diff_frame(frame1, frame2, display):
     im1 = cv.cvtColor(frame1, cv.COLOR_BGR2GRAY)
     im2 = cv.cvtColor(frame2, cv.COLOR_BGR2GRAY)
     im1 = cv.GaussianBlur(im1, (3, 3), sigmaY=0, sigmaX=0)
     im2 = cv.GaussianBlur(im2, (3, 3), sigmaY=0, sigmaX=0)
     diff = cv.absdiff(im1, im2)
     kernel = np.ones((3,3), np.uint8)
-    opening = cv.morphologyEx(diff, cv.MORPH_OPEN, kernel, iterations = 1)
-    cv.namedWindow("Difference", cv.WINDOW_NORMAL)
-    cv.namedWindow("Dilatation", cv.WINDOW_NORMAL)
-    cv.imshow("Difference", diff)
-    cv.imshow("Dilatation", opening)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    opening = cv.morphologyEx(diff, cv.MORPH_OPEN, kernel, iterations=2)
 
-    return diff
+    if display:
+        cv.namedWindow("Difference-OP", cv.WINDOW_NORMAL)
+        cv.imshow("Difference-OP", np.hstack((diff, opening)))
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+
+    return opening
 
 
 def histogram_eq(image):
@@ -264,106 +258,164 @@ def detect_background(frame1, frame2):
     return masked_im
 
 
-def circles_by_contour(image, full_dislplay):
+def circles_by_contour(image, c, roi, full_display):
     im = cv.GaussianBlur(image, (5, 5), 0)
 
-    x = np.array([0, 0])
-    y = np.array([0, 0])
-    #x[0], y[0], x[1], y[1] = roi.getROI(im)
-    x[1] = image.shape[1]
-    y[1] = image.shape[0]
-
     copy = im.copy()
-    mask = np.zeros((image.shape[0], image.shape[1], 3))
-    mask[y[0]:y[1], x[0]:x[1], :] = 1
-    masked = cv.multiply(copy, mask, dtype=cv.CV_8U)
     cropped = im.copy()
-    cropped = cropped[y[0]:y[1], x[0]:x[1]]
+    cropped = cropped[roi[1]:roi[3], roi[0]:roi[2]]
 
-    color_mask = color.color_mask(cropped, color='b', display=full_dislplay)
+    color_mask = color.color_mask(cropped, color=c, display=full_display)
     gray = cv.cvtColor(color_mask, cv.COLOR_HSV2BGR)
-    #sharp = sharpen(gray, show=True)
-    #equal = histogram_eq(gray)
     gray = cv.cvtColor(gray, cv.COLOR_BGR2GRAY)
 
     ret, thresh = cv.threshold(gray, 120, 255, cv.THRESH_BINARY)
+    eros = cv.erode(thresh, (7, 7), 30)
+    thresh = cv.dilate(eros, (5,5), 30)
 
-    if full_dislplay:
-        cv.namedWindow("HSVMask, Threshold", cv.WINDOW_NORMAL)
-        cv.imshow("HSVMask, Threshold", np.hstack((gray, thresh)))
+    if full_display:
+        cv.namedWindow("Erosion-Dilatation", cv.WINDOW_NORMAL)
+        cv.imshow("Erosion-Dilatation", np.hstack((eros, thresh)))
         cv.waitKey(0)
         cv.destroyAllWindows()
 
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
     i = 0
-    index = 0
-    biggest_area = 0
+    index = -1
+    biggest_area = 25
+
     for cnt in contours:
         area = cv.contourArea(cnt)
-        if area >= biggest_area:
+        if biggest_area <= area <= 1000:
             biggest_area = area
             index = i
         i += 1
+    #print "[%s] = %d" % (i, biggest_area)
+    if index >= 0:
+        (x_c, y_c), radius = cv.minEnclosingCircle(contours[index])
+    else:
+        x_c = y_c = 0
+        radius = 0
+        #print "No CIRCLE"
 
-    (x_c, y_c), radius = cv.minEnclosingCircle(contours[index])
-    #Relative Circle
+    # Relative Circle
     center = (int(x_c), int(y_c))
     radius = int(radius)
+    # Absolute Center
+    center_abs = (int(x_c) + roi[0], int(y_c) + roi[1])
 
-    #Absolute Center
-    center_abs = (int(x_c) + x[0], int(y_c) + y[0])
-
+    cv.circle(copy, center_abs, 1, (10, 255, 25), 5)
     cv.circle(copy, center_abs, radius, (10, 10, 255), 2)
-    print "Center: ", center_abs
-    cv.imshow("Marker", copy)
-    #cv.waitKey(0)
-    #cv.destroyAllWindows()
+    #print "Center: ", center_abs
+
+    return copy
 
 
 def main():
     print "VIRTUAL BOARD\n\n"
-    cv.destroyAllWindows()
 
     dir_name = "images/images_azul/"
+    color_ball = 'b'
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
 
-    cv.namedWindow("Marker", cv.WINDOW_NORMAL)
+    ###################################################################
+    ## CONTOUR METHOD APPLYING COLOR MASK OVER ALL FRAMES
+    ###################################################################
     total_frames = len(files1)
     frame_number = 0
+
+    cal_frame = cv.imread(files1[0])
+    # WHAT: roi_xy = [x1, y1, x2, y2]
+    roi_xy = np.array([0, 0, cal_frame.shape[1], cal_frame.shape[0]])
+    roi_xy[0], roi_xy[1], roi_xy[2], roi_xy[3] = roi.getROI(cal_frame)
+
+    cv.namedWindow("Marker", cv.WINDOW_NORMAL)
     while frame_number < total_frames:
-        circles_by_contour(cv.imread(files2[frame_number]), full_dislplay=False)
+        c = circles_by_contour(cv.imread(files1[frame_number]), c=color_ball, roi=roi_xy, full_display=False)
+        cv.imshow("Marker", c)
         k = cv.waitKey(10) & 0XFF
         if k == 27:
             cv.destroyAllWindows()
             break
         frame_number += 1
 
-    src2 = cv.imread(files1[40])
+    ###################################################################
+    ## CONTOUR METHOD APPLYING COLOR MASK OVER ONE FRAME -> DEBUGGING
+    ###################################################################
+    #c = circles_by_contour(cv.imread(files1[1]), c='b', roi=roi_xy, full_dislplay=True)
+    #cv.namedWindow("Marker", cv.WINDOW_NORMAL)
+    #cv.imshow("Marker", c)
+    #cv.waitKey(0)
+    #cv.destroyAllWindows()
+
+    ###################################################################
+    ## LOTS OF FAIL ATTEMPTS
+    ###################################################################
+    test = cv.imread(files1[40])
     sph1 = cv.imread("images/blue_sphere_00.png")
     sph2 = cv.imread("images/blue_sphere_01.png")
 
-    #detect_all_circles(dir_name)
-    #detect_circles(src2)
-    #filtering(src2)
+    #detect_by_hough(dir_name)
+    #detect_circles(test)
+    #filtering(test)
 
     #color.histogram_hsv(sph1, sph2)
     #bp = color.back_projection(src2)
     #detect_circles(bp)
     #color.histogram_ycc(sph1)
-    '''
-    for f in files1:
-        frame = cv.imread(f)
-        #color.color_mask(frame)
-    '''
 
-    f1 = cv.imread(files1[40])
-    f2 = cv.imread(files1[41])
-    #diff_frame(f1, f2)
     #histogram_eq(f1)
     #sharpen(f1)
     #maskedIm = detect_background(f1, f2)
     #detect_circles(maskedIm)
+
+    ###################################################################
+    ## CONTOUR METHOD USING BACKGROUND SEGMENTATION AND COLOR MASK
+    ## NEED THE BACKGROUND MODEL
+    ###################################################################
+    ''' BACKGROUND SEGMENTATION!!!! NEED BACKGROUND MODEL
+    f1 = cv.imread(files1[40])
+    f2 = cv.imread(files1[41])
+    hsv1 = color.color_mask(f1, 'r', display=False)
+    hsv2 = color.color_mask(f2, 'r', display=False)
+    hsv1 = cv.cvtColor(hsv1, cv.COLOR_HSV2BGR)
+    hsv2 = cv.cvtColor(hsv2, cv.COLOR_HSV2BGR)
+    diff = diff_frame(hsv1, hsv2, display=False)
+    ret, thresh = cv.threshold(diff, 50, 255, cv.THRESH_BINARY)
+    cv.namedWindow("BLA", cv.WINDOW_NORMAL)
+    cv.imshow("BLA", thresh)
+    cv.waitKey(0)
+
+    copy = f1.copy()
+    contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
+    i = 0
+    index = -1
+    biggest_area = 25
+    for cnt in contours:
+        area = cv.contourArea(cnt)
+        if area >= biggest_area and area < 1000:
+            biggest_area = area
+            index = i
+        i += 1
+    print "[%s] = %d" % (i, biggest_area)
+    if index >= 0:
+        (x_c, y_c), radius = cv.minEnclosingCircle(contours[index])
+    else:
+        x_c = y_c = 0
+        radius = 0
+        print "No CIRCLE"
+    #Relative Circle
+    center = (int(x_c), int(y_c))
+    radius = int(radius)
+
+    cv.circle(copy, center, 1, (10, 255, 25), 5)
+    cv.circle(copy, center, radius, (10, 10, 255), 2)
+    cv.namedWindow("MARKER", cv.WINDOW_NORMAL)
+    cv.imshow("MARKER", copy)
+    cv.waitKey(0)
+    '''
+
 
 if __name__ == "__main__":
     main()
