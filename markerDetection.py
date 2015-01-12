@@ -62,7 +62,7 @@ def detect_background(frame1, frame2):
 
 
 def circles_by_contour(image, c, roi, full_display):
-    im = cv.GaussianBlur(image, (5, 5), 0)
+    im = cv.GaussianBlur(image, (9, 9), 0)
 
     copy = im.copy()
     cropped = im.copy()
@@ -71,10 +71,11 @@ def circles_by_contour(image, c, roi, full_display):
     color_mask = Color.color_mask(cropped, color=c, display=full_display)
     gray = cv.cvtColor(color_mask, cv.COLOR_HSV2BGR)
     gray = cv.cvtColor(gray, cv.COLOR_BGR2GRAY)
-
-    ret, thresh = cv.threshold(gray, 120, 255, cv.THRESH_BINARY)
+    gray = cv.medianBlur(gray, 3)
+    #ret, thresh = cv.threshold(gray, 120, 255, cv.THRESH_BINARY)
+    ret, thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
     eros = cv.erode(thresh, (7, 7), 30)
-    thresh = cv.dilate(eros, (5,5), 30)
+    #thresh = cv.dilate(eros, (5,5), 30)
 
     if full_display:
         cv.namedWindow("Erosion-Dilatation", cv.WINDOW_NORMAL)
@@ -89,7 +90,7 @@ def circles_by_contour(image, c, roi, full_display):
 
     for cnt in contours:
         area = cv.contourArea(cnt)
-        if biggest_area <= area <= 1000:
+        if biggest_area <= area:
             biggest_area = area
             index = i
         i += 1
@@ -107,9 +108,10 @@ def circles_by_contour(image, c, roi, full_display):
     # Absolute Center
     center_abs = (int(x_c) + roi[0], int(y_c) + roi[1])
 
-    cv.circle(copy, center_abs, 1, (10, 255, 25), 5)
-    cv.circle(copy, center_abs, radius, (10, 10, 255), 2)
-    #print "Center: ", center_abs
+    if radius != 0:
+        cv.circle(copy, center_abs, 1, (10, 255, 25), 5)
+        cv.circle(copy, center_abs, radius, (10, 10, 255), 2)
+        #print "Center: ", center_abs
 
     return copy
 
@@ -117,11 +119,11 @@ def circles_by_contour(image, c, roi, full_display):
 def main():
     print "VIRTUAL BOARD\n\n"
 
-    dir_name = "images/images_azul/"
-    color_ball = 'b'
+    dir_name = "images/images_verde/"
+    color_ball = 'g'
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
-    '''
+
     ###################################################################
     ## CONTOUR METHOD APPLYING COLOR MASK OVER ALL FRAMES
     ###################################################################
@@ -143,15 +145,15 @@ def main():
             cv.destroyAllWindows()
             break
         frame_number += 1
-
+    '''
     ###################################################################
     ## CONTOUR METHOD APPLYING COLOR MASK OVER ONE FRAME -> DEBUGGING
     ###################################################################
-    #c = circles_by_contour(cv.imread(files1[1]), c='b', roi=roi_xy, full_display=True)
-    #cv.namedWindow("Marker", cv.WINDOW_NORMAL)
-    #cv.imshow("Marker", c)
-    #cv.waitKey(0)
-    #cv.destroyAllWindows()
+    c = circles_by_contour(cv.imread(files1[1]), c='b', roi=roi_xy, full_display=True)
+    cv.namedWindow("Marker", cv.WINDOW_NORMAL)
+    cv.imshow("Marker", c)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
 
     #color.histogram_hsv(sph1, sph2)
@@ -163,7 +165,7 @@ def main():
     #sharpen(f1)
     #maskedIm = detect_background(f1, f2)
     #detect_circles(maskedIm)
-'''
+
     ###################################################################
     ## CONTOUR METHOD USING BACKGROUND SEGMENTATION AND COLOR MASK
     ## NEED THE BACKGROUND MODEL
@@ -206,7 +208,7 @@ def main():
     cv.namedWindow("MARKER", cv.WINDOW_NORMAL)
     cv.imshow("MARKER", copy)
     cv.waitKey(0)
-
+    '''
 
 
 if __name__ == "__main__":
