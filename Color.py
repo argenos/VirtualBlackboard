@@ -7,8 +7,7 @@ Created on Mon Dec 15 12:20:11 2014
 
 import cv2
 import numpy as np
-import scipy.optimize as opt
-import scipy as scp
+import circleDetection as Detector
 from matplotlib import pyplot as plt
 
 
@@ -23,6 +22,55 @@ lower_green = np.array([37, 16, 186], dtype="uint8")
 upper_green = np.array([118, 184, 255], dtype="uint8")
 
 
+def track_hsv(image):
+    #im1 = cv2.resize(image, (640, 480))
+    im1 = image.copy()
+    im1 = cv2.GaussianBlur(im1, (5, 5), 0)
+    # Convert BGR to HSV
+    hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
+    # define range of blue color in HSV
+    lower = np.array([0, 0, 0], dtype="uint8")
+    upper = np.array([179, 255, 255], dtype="uint8")
+
+    # Threshold the HSV image to get only blue colors
+    mask = cv2.inRange(hsv, lower, upper)
+    # Bitwise-AND mask and original image
+    res = cv2.bitwise_and(im1, im1, mask=mask)
+
+    def nothing(x):
+        pass
+
+    cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
+    cv2.imshow("Result", res)
+    cv2.namedWindow("Color Thresholds")
+    cv2.createTrackbar("Hl", "Color Thresholds", lower[0], 179, nothing)
+    cv2.createTrackbar("Sl", "Color Thresholds", lower[1], 255, nothing)
+    cv2.createTrackbar("Vl", "Color Thresholds", lower[2], 255, nothing)
+    cv2.createTrackbar("Hu", "Color Thresholds", upper[0], 179, nothing)
+    cv2.createTrackbar("Su", "Color Thresholds", upper[1], 255, nothing)
+    cv2.createTrackbar("Vu", "Color Thresholds", upper[2], 255, nothing)
+
+    while True:
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27:
+            break
+        mask = cv2.inRange(hsv, lower, upper)
+        res = cv2.bitwise_and(im1, im1, mask=mask)
+        cv2.imshow("Result", res)
+
+        lower[0] = cv2.getTrackbarPos("Hl", "Color Thresholds")
+        lower[1] = cv2.getTrackbarPos("Sl", "Color Thresholds")
+        lower[2] = cv2.getTrackbarPos("Vl", "Color Thresholds")
+        upper[0] = cv2.getTrackbarPos("Hu", "Color Thresholds")
+        upper[1] = cv2.getTrackbarPos("Su", "Color Thresholds")
+        upper[2] = cv2.getTrackbarPos("Vu", "Color Thresholds")
+
+    print "Lower: ", lower
+    print "Upper: ", upper
+
+    cv2.destroyAllWindows()
+
+
 def color_mask(image, color, display):
     #im1 = cv2.GaussianBlur(image, (5, 5), 0)
     im1 = image.copy()
@@ -35,6 +83,9 @@ def color_mask(image, color, display):
         mask = cv2.inRange(hsv, lower_red, upper_red)
     elif color == 'g':
         mask = cv2.inRange(hsv, lower_green, upper_green)
+    else:
+        print "No color recognized. Use 'R', 'G' or 'B' when calling the function.\n"
+        return -1
     # Bitwise-AND mask and original image
     color_masked = cv2.bitwise_and(im1, im1, mask=mask)
 
@@ -94,43 +145,58 @@ def back_projection(frame):
     return res
 
 
-def histogram_rgb(image):
-    #Histogram calculation
-    plt.figure()
-    color = ('b', 'g', 'r')
-    for i, col in enumerate(color):
-        hist = cv2.calcHist([image], [i], None, [256], [0, 256])
-        plt.plot(hist, color=col)
-        plt.xlim([0, 256])
-    plt.title("Histogram")
-    plt.xlabel("Bins")
-    plt.ylabel("# of Pixels")
-    plt.show()
+def compute_histogram(original_image, color_space):
 
+    def histogram_rgb(image):
+        #Histogram calculation
+        plt.figure()
+        color = ('b', 'g', 'r')
+        for i, col in enumerate(color):
+            hist = cv2.calcHist([image], [i], None, [256], [0, 256])
+            plt.plot(hist, color=col)
+            plt.xlim([0, 256])
+        plt.title("Histogram")
+        plt.xlabel("Bins")
+        plt.ylabel("# of Pixels")
+        plt.show()
 
-def histogram_hsv(image1, image2):
-    im = cv2.cvtColor(image1, cv2.COLOR_BGR2HSV)
-    h = cv2.calcHist([im], [0], None, [180], [0, 180])
-    s = cv2.calcHist([im], [1], None, [255], [0, 256])
-    v = cv2.calcHist([im], [2], None, [255], [0, 256])
-    im = cv2.cvtColor(image2, cv2.COLOR_BGR2HSV)
-    h += cv2.calcHist([im], [0], None, [180], [0, 180])
-    s += cv2.calcHist([im], [1], None, [255], [0, 256])
-    v += cv2.calcHist([im], [2], None, [255], [0, 256])
+    def histogram_hsv(image):
+        im = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        h = cv2.calcHist([im], [0], None, [180], [0, 180])
+        s = cv2.calcHist([im], [1], None, [255], [0, 256])
+        v = cv2.calcHist([im], [2], None, [255], [0, 256])
 
-    plt.figure()
-    plt.plot(h, 'r', label='Hue')
-    plt.plot(s, 'g', label='Saturation')
-    plt.plot(v, 'b', label='Value')
-    plt.title("Histogram HSV")
-    plt.legend()
-    plt.xlabel("Bins")
-    plt.ylabel("# of Pixels")
-    plt.show()
+        plt.figure()
+        plt.plot(h, 'r', label='Hue')
+        plt.plot(s, 'g', label='Saturation')
+        plt.plot(v, 'b', label='Value')
+        plt.title("Histogram HSV")
+        plt.legend()
+        plt.xlabel("Bins")
+        plt.ylabel("# of Pixels")
+        plt.show()
 
-    fit_gaussian(h)
-    fit_gaussian(s)
-    fit_gaussian(v)
+    def histogram_ycc(image):
+        im = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
+        cv2.namedWindow("YCrCb", cv2.WINDOW_NORMAL)
+        cv2.imshow("YCrCb", im)
+        cv2.namedWindow("Luminence", cv2.WINDOW_NORMAL)
+        cv2.imshow("Luminence", im[:, :, 0])
+        cv2.namedWindow("CrominanceRed", cv2.WINDOW_NORMAL)
+        cv2.imshow("CrominanceRed", im[:, :, 1])
+        cv2.namedWindow("CrominanceBlue", cv2.WINDOW_NORMAL)
+        cv2.imshow("CrominanceBlue", im[:, :, 02])
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    if color_space == 'rgb':
+        histogram_rgb(original_image)
+    elif color_space == 'hsv':
+        histogram_hsv(original_image)
+    elif color_space == 'ycrcb':
+        histogram_ycc(original_image)
+    else:
+        return -1
 
 
 def fit_gaussian(histogram):
@@ -150,24 +216,57 @@ def fit_gaussian(histogram):
     return mean, sigma
 
 
-def histogram_ycc(image):
-    im = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
-    cv2.namedWindow("YCrCb", cv2.WINDOW_NORMAL)
-    cv2.imshow("YCrCb", im)
-    cv2.namedWindow("Luminence", cv2.WINDOW_NORMAL)
-    cv2.imshow("Luminence", im[:, :, 0])
-    cv2.namedWindow("CrominanceRed", cv2.WINDOW_NORMAL)
-    cv2.imshow("CrominanceRed", im[:, :, 1])
-    cv2.namedWindow("CrominanceBlue", cv2.WINDOW_NORMAL)
-    cv2.imshow("CrominanceBlue", im[:, :, 02])
+def equalize_component(image, component):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
+    cv2.imshow("Image", np.hstack((image, hsv)))
     cv2.waitKey(0)
-    cv2.destroyAllWindows()
+
+    h = hsv[:, :, 0]
+    s = hsv[:, :, 1]
+    v = hsv[:, :, 2]
+
+    cv2.namedWindow("HSV Components", cv2.WINDOW_NORMAL)
+    out = np.hstack((h, np.hstack((s, v))))
+    cv2.imshow("HSV Components", out)
+    cv2.waitKey(0)
+
+    hsv2 = hsv.copy()
+    if component == 'h':
+        n = cv2.equalizeHist(hsv2[:, :, 0])
+        new_image = np.dstack((n, np.dstack((s, v))))
+    elif component == 's':
+        n = cv2.equalizeHist(hsv2[:, :, 1])
+        new_image = np.dstack((h, np.dstack((n, v))))
+    elif component == 'v':
+        n = cv2.equalizeHist(hsv2[:, :, 2])
+        new_image = np.dstack((h, np.dstack((s, n))))
+    else:
+        new_image = np.dstack((h, np.dstack((s, v))))
+
+    new_image = cv2.cvtColor(new_image, cv2.COLOR_HSV2BGR)
+
+    cv2.namedWindow("HSV MOD", cv2.WINDOW_NORMAL)
+    cv2.imshow("HSV MOD", np.hstack((image, new_image)))
+    cv2.waitKey(0)
+
+    return new_image
 
 
 def main():
     print "Color Masking"
-
+    directory = "images/images_azul/"
+    frame = cv2.imread(directory+"c1_image00.png")
+    #test = cv2.imread("images/blue_sphere_00.png")
+    #track_hsv(frame)
+    #color_mask(frame, color='b', display=True)
+    #compute_histogram(test, 'rgb')
+    #compute_histogram(test, 'hsv')
+    processed = equalize_component(frame, 's')
+    #track_hsv(processed)
+    Detector.detect_circles(processed)
 
 if __name__ == "__main__":
     main()
+    cv2.destroyAllWindows()
 
