@@ -23,11 +23,11 @@ im = cv2.imread(img)
 im1 = cv2.resize(im,(640,480))
 im1 = cv2.GaussianBlur(im1,(5,5),0)
 
-def init(original):    
-    cv2.namedWindow('Original image')
+def init(original):
+    cv2.namedWindow('Original image', cv2.WINDOW_NORMAL)
     cv2.imshow('Original image', original)
     cropped = original[0:HEIGHT, 0:WIDTH]  #[y,x]
-    cv2.namedWindow('Cropped')
+    cv2.namedWindow('Cropped',cv2.WINDOW_NORMAL)
     cv2.imshow("Cropped", cropped)
     return original, cropped
 
@@ -43,7 +43,7 @@ def showCroppedImg():
     global _original, _cropped, _x1, _y1, _x2, _y2
     _cropped = _original[_y1:_y2,_x1:_x2]
     cv2.imshow("Cropped",_cropped)
-    
+
 
 def mouseROI(event, x, y, flags, param):
     global _clicked, _x1, _x2, _y1, _y2
@@ -60,7 +60,7 @@ def mouseROI(event, x, y, flags, param):
         _x2=x
         _y2=y
         _clicked = False
-        #print "P2: %d  %d"%(_x2,_y2) 
+        #print "P2: %d  %d"%(_x2,_y2)
         showCroppedImg()
     elif event == cv2.EVENT_MOUSEMOVE:
         if _clicked:
@@ -79,14 +79,14 @@ def getROI(img):
     cv2.setMouseCallback('Original image', mouseROI)
 
     while True:
-        key = cv2.waitKey(1) & 0xFF  
-        if key == 27: 
+        key = cv2.waitKey(1) & 0xFF
+        if key == 27:
             break
         elif key == ord("s"):
             cv2.destroyAllWindows()
             return (_x1, _y1, _x2, _y2)
-            
-    
+
+
 
 if __name__ == '__main__':
     getROI(im1)
