@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 lower_blue = np.array([92,  39, 146], dtype="uint8")
 upper_blue = np.array([114,  95, 255], dtype="uint8")
 # define range of red color in HSV
-lower_red = np.array([0, 0, 200], dtype="uint8")
+lower_red = np.array([0, 0, 230], dtype="uint8")
 upper_red = np.array([179, 255, 255], dtype="uint8")
 # define range of green color in HSV
 lower_green = np.array([37, 16, 186], dtype="uint8")
