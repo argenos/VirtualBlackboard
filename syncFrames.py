@@ -17,7 +17,8 @@ path = 'images/test/'
 
 
 def getf(cam,num,r1,r2,frames):
-    print "Start Thread %d"%num
+    global path
+    print "Camera %d started."%num
     for i in xrange(frames):
         r1.set()
         r2.wait()
@@ -31,7 +32,7 @@ def getf(cam,num,r1,r2,frames):
         #print "Done %d"%num
     r1.set()
     del(cam)
-    print "Exit Thread %d"%num
+    print "Camera %d finished."%num
 
 
 def getSyncedFrames(frames):
@@ -78,10 +79,10 @@ def getBackground():
 
     print "Please step away and click 's' when it's ready..."
     back1 = getVideo(cam1,'Background 1')
-    cv2.imwrite('images/background/background1.png', back1)
+    cv2.imwrite('images/setup/background/background1.png', back1)
     print "Please step away and click 's' when it's ready..."
     back2 = getVideo(cam2, 'Background 2')
-    cv2.imwrite('images/background/background2.png', back2)
+    cv2.imwrite('images/setup/background/background2.png', back2)
 
     cam1.release()
     cam2.release()
@@ -96,9 +97,9 @@ def getBlackboardCorners():
         print "Please touch the "+corners[i]+' corner of the blackboard with a marker.'
 
         corner1 = getVideo(cam1, 'Corner1')
-        cv2.imwrite('images/corners/c1_corner%.2d.png'%i, corner1)
+        cv2.imwrite('images/setup/corners/c1_corner%.2d.png'%i, corner1)
         corner2 = getVideo(cam2, 'Corner2')
-        cv2.imwrite('images/corners/c2_corner%.2d.png'%i, corner2)
+        cv2.imwrite('images/setup/corners/c2_corner%.2d.png'%i, corner2)
 
 
     cam1.release()
@@ -118,26 +119,31 @@ def calibrate(images):
         cv2.imshow("Captured frame",two)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        cv2.imwrite('images/calibration_stereo/c1_calib%.2d.jpg'%i, img1)
-        cv2.imwrite('images/calibration_stereo/c2_calib%.2d.jpg'%i, img2)
+        cv2.imwrite('images/setup/calibration_stereo/c1_calib%.2d.jpg'%i, img1)
+        cv2.imwrite('images/setup/calibration_stereo/c2_calib%.2d.jpg'%i, img2)
 
     cam1.release()
     cam2.release()
 
 
-def init(frames,f = True,calib=False,*args):
+def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green','yellow','white']):
+    global path
     if calib:
         calibrate(25)
 
-    if f:
+    if setup:
         print "Getting background."
         getBackground()
         print "Getting blackboard corners."
         getBlackboardCorners()
+
+    if f:
         print "Getting frames."
-        for arg in args:
-            path = 'images/'+arg+'_images/'
+        for color in colors:
+            path = 'images/'+color+'_images/'
             getSyncedFrames(frames)
+            print "Press any key to continue..."
+            cv2.waitKey(0)
 
 
 
@@ -151,7 +157,7 @@ def changeExtension():
 
 
 if __name__ == '__main__':
-    #init(100)
-    calibrate(40)
+    init(50,setup=True,f=True,calib=False,)
+    #calibrate(40)
     #changeExtension()
     print "All done."
