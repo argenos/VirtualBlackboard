@@ -10,7 +10,8 @@ import time
 
 camera_port = 0
 ramp_frames = 30
-camera = cv2.VideoCapture(0) 
+camera = cv2.VideoCapture(0)
+path = 'images/test/'
 
 
 def getf(cam,num,r1,r2,frames):
@@ -23,7 +24,7 @@ def getf(cam,num,r1,r2,frames):
         r1.clear()
         #print "Getting image %d"%num
         r,camera_capture = cam.read()
-        file = "images/test/c%d_image%.3d.png"%(num,i)
+        file = path+"c%d_image%.3d.png"%(num,i)
         cv2.imwrite(file, camera_capture)
         #print "Done %d"%num
     r1.set()
@@ -63,7 +64,7 @@ def getVideo(cam):
             break
 
     # When everything done, release the capture
-    cam.release()
+    #cam.release()
     cv2.destroyAllWindows()
     return frame
 
@@ -91,15 +92,35 @@ def getBlackboardCorners():
     cv2.imwrite('images/corner2.png', corner2)
 
 
-def init(frames):
-    print "Getting background."
-    getBackground()
-    print "Getting blackboard corners."
-    getBlackboardCorners()
-    print "Getting frames"
-    getSyncedFrames(frames)
+def calibrate(images):
+    cam1 = cv2.VideoCapture(0)
+    cam2 = cv2.VideoCapture(1)
+    for i in xrange(images):
+        img1 = getVideo(cam1)
+        cv2.imwrite('images/calibration/c1_calib%.2d.png'%i, img1)
+        img2 = getVideo(cam2)
+        cv2.imwrite('images/calibration/c2_calib%.2d.png'%i, img2)
+
+    cam1.release()
+    cam2.release()
+
+
+def init(frames,f = True,calib=False,*args):
+    if f:
+        print "Getting background."
+        getBackground()
+        print "Getting blackboard corners."
+        getBlackboardCorners()
+        print "Getting frames."
+        for arg in args:
+            path = 'images/'+arg+'_images/'
+            getSyncedFrames(frames)
+
+
+    if calib:
+        calibrate(25)
+
 
 
 if __name__ == '__main__':
-    init(5)
-    
+    init(5,False,True)
