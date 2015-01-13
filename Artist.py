@@ -15,6 +15,7 @@ CURRENT_COLOR = (0,0,0)
 
 def init():
     cv2.namedWindow('Drawing', cv2.WINDOW_NORMAL)
+    #cv2.resizeWindow('Drawing',480,640)
 
 
 def paint(x,y,color=CURRENT_COLOR):
