@@ -7,11 +7,13 @@ Created on Wed Dec 10 23:16:01 2014
 import threading
 import cv2
 import time
+import numpy as np
 
 camera_port = 0
 ramp_frames = 30
 camera = cv2.VideoCapture(0)
 path = 'images/test/'
+
 
 
 def getf(cam,num,r1,r2,frames):
@@ -52,13 +54,14 @@ def getSyncedFrames(frames):
     print "Done. Total frames: %d"%frames
 
 
-def getVideo(cam):
+def getVideo(cam,name,showImg=True):
     ret,frame = cam.read()
     while(True):
         ret, frame = cam.read()
         newFrame = cv2.resize(frame,(640,480))
 
-        cv2.imshow('Background',newFrame)
+        #if showImg:
+        cv2.imshow('Video',newFrame)
 
         if cv2.waitKey(1) & 0xFF == ord('s'):
             break
@@ -74,11 +77,11 @@ def getBackground():
     cam2 = cv2.VideoCapture(1)
 
     print "Please step away and click 's' when it's ready..."
-    back1 = getVideo(cam1)
-    cv2.imwrite('images/background1.png', back1)
+    back1 = getVideo(cam1,'Background 1')
+    cv2.imwrite('images/background/background1.png', back1)
     print "Please step away and click 's' when it's ready..."
-    back2 = getVideo(cam2)
-    cv2.imwrite('images/background2.png', back2)
+    back2 = getVideo(cam2, 'Background 2')
+    cv2.imwrite('images/background/background2.png', back2)
 
     cam1.release()
     cam2.release()
@@ -87,28 +90,36 @@ def getBlackboardCorners():
     cam1 = cv2.VideoCapture(0)
     cam2 = cv2.VideoCapture(1)
 
-    corners = ['top left','top right', 'bottom left', 'bottom right']
+    corners = ['top_left','top_right', 'bottom_left', 'bottom_right']
 
     for i in xrange(4):
         print "Please touch the "+corners[i]+' corner of the blackboard with a marker.'
 
-        corner1 = getVideo(cam1)
-        cv2.imwrite('images/c1_corner%.2d.png'%i, corner1)
-        corner2 = getVideo(cam2)
-        cv2.imwrite('images/c2_corner%.2d.png'%i, corner2)
+        corner1 = getVideo(cam1, 'Corner1')
+        cv2.imwrite('images/corners/c1_corner%.2d.png'%i, corner1)
+        corner2 = getVideo(cam2, 'Corner2')
+        cv2.imwrite('images/corners/c2_corner%.2d.png'%i, corner2)
+
 
     cam1.release()
     cam2.release()
 
-
 def calibrate(images):
     cam1 = cv2.VideoCapture(0)
     cam2 = cv2.VideoCapture(1)
+    print "Calibrating"
     for i in xrange(images):
-        img1 = getVideo(cam1)
-        cv2.imwrite('images/calibration/c1_calib%.2d.jpg'%i, img1)
-        img2 = getVideo(cam2)
-        cv2.imwrite('images/calibration/c2_calib%.2d.jpg'%i, img2)
+        print "Waiting for key"
+        img1 = getVideo(cam1,'Calibration1')
+        img2 = getVideo(cam2,'Calibration2')
+        two = np.hstack((img1,img2))
+        two = cv2.resize(two,(1280,460))
+        print "Showing two images"
+        cv2.imshow("Captured frame",two)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        cv2.imwrite('images/calibration_stereo/c1_calib%.2d.jpg'%i, img1)
+        cv2.imwrite('images/calibration_stereo/c2_calib%.2d.jpg'%i, img2)
 
     cam1.release()
     cam2.release()
@@ -140,6 +151,7 @@ def changeExtension():
 
 
 if __name__ == '__main__':
-    #init(100,False,True)
-    changeExtension()
+    #init(100)
+    calibrate(40)
+    #changeExtension()
     print "All done."
