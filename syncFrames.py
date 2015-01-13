@@ -80,16 +80,25 @@ def getBackground():
     back2 = getVideo(cam2)
     cv2.imwrite('images/background2.png', back2)
 
+    cam1.release()
+    cam2.release()
+
 def getBlackboardCorners():
     cam1 = cv2.VideoCapture(0)
     cam2 = cv2.VideoCapture(1)
 
-    print "Please touch the left top corner of the blackboard with a marker."
-    corner1 = getVideo(cam1)
-    cv2.imwrite('images/corner1.png', corner1)
-    print "Please touch the right bottom corner of the blackboard with a marker."
-    corner2 = getVideo(cam2)
-    cv2.imwrite('images/corner2.png', corner2)
+    corners = ['top left','top right', 'bottom left', 'bottom right']
+
+    for i in xrange(4):
+        print "Please touch the "+corners[i]+' corner of the blackboard with a marker.'
+
+        corner1 = getVideo(cam1)
+        cv2.imwrite('images/c1_corner%.2d.png'%i, corner1)
+        corner2 = getVideo(cam2)
+        cv2.imwrite('images/c2_corner%.2d.png'%i, corner2)
+
+    cam1.release()
+    cam2.release()
 
 
 def calibrate(images):
@@ -97,15 +106,18 @@ def calibrate(images):
     cam2 = cv2.VideoCapture(1)
     for i in xrange(images):
         img1 = getVideo(cam1)
-        cv2.imwrite('images/calibration/c1_calib%.2d.png'%i, img1)
+        cv2.imwrite('images/calibration/c1_calib%.2d.jpg'%i, img1)
         img2 = getVideo(cam2)
-        cv2.imwrite('images/calibration/c2_calib%.2d.png'%i, img2)
+        cv2.imwrite('images/calibration/c2_calib%.2d.jpg'%i, img2)
 
     cam1.release()
     cam2.release()
 
 
 def init(frames,f = True,calib=False,*args):
+    if calib:
+        calibrate(25)
+
     if f:
         print "Getting background."
         getBackground()
@@ -117,10 +129,17 @@ def init(frames,f = True,calib=False,*args):
             getSyncedFrames(frames)
 
 
-    if calib:
-        calibrate(25)
+
+def changeExtension():
+    for i in xrange(25):
+        img1 = cv2.imread('images/calibration/c1_calib%.2d.png'%i)
+        cv2.imwrite('images/calibration/c1_calib%.2d.jpg'%i, img1)
+        img2 = cv2.imread('images/calibration/c2_calib%.2d.png'%i)
+        cv2.imwrite('images/calibration/c2_calib%.2d.jpg'%i, img2)
 
 
 
 if __name__ == '__main__':
-    init(5,False,True)
+    #init(100,False,True)
+    changeExtension()
+    print "All done."
