@@ -18,7 +18,7 @@ def init():
 
 
 def paint(x,y,color=CURRENT_COLOR):
-    cv2.circle(blackboard,(x,y),5,CURRENT_COLOR,-1)
+    cv2.circle(blackboard,(x,y),5,color,-1)
 
 def mouse(event, x, y, flags, param):
     global _x,_y,_clicked
