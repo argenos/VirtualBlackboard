@@ -59,3 +59,6 @@ target/
 
 #GIMP
 *.xcf
+
+#Pycharm
+*.idea
