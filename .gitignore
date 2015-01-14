@@ -62,3 +62,12 @@ target/
 
 #Pycharm
 *.idea
+
+#LaTeX
+*.aux
+*.bbl
+*.dvi
+*.blg
+*.log
+*.synctex.gz
+*.tex.bak
