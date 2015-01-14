@@ -2,7 +2,8 @@
 """
 Created on Wed Dec 10 23:16:01 2014
 
-@author: Argen
+@author: Argentina Ortega Sáinz
+@author: Nicolás Laverde Alfonso
 """
 import threading
 import cv2
@@ -140,7 +141,7 @@ def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green','ye
     if f:
         print "Getting frames."
         for color in colors:
-            path = 'images/frames/'+color+'_images/'
+            path = 'images/frames/'+color+'/'
             getSyncedFrames(frames)
             print "Press any key to continue..."
             cv2.waitKey(0)
