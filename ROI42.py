@@ -18,7 +18,7 @@ _x1 = _y1 = _x2=_y2 = 0
 _original = _cropped = None
 _clicked = False
 
-img = 'images/images_rojo/c2_image00.png'
+img = 'images/frames/blue/c2_image000.png'
 im = cv2.imread(img)
 im1 = cv2.resize(im,(640,480))
 im1 = cv2.GaussianBlur(im1,(5,5),0)

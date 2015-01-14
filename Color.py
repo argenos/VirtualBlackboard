@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 import circleDetection as Detector
 from matplotlib import pyplot as plt
+import ROI42 as roi
 
 
 # define range of blue color in HSV
@@ -69,6 +70,8 @@ def track_hsv(image):
     print "Upper: ", upper
 
     cv2.destroyAllWindows()
+
+
 
 
 def color_mask(image, color, display):
@@ -267,6 +270,13 @@ def main():
     Detector.detect_circles(processed)
 
 if __name__ == "__main__":
-    main()
+    #main()
+    img = cv2.imread('images/frames/blue/c2_image000.png')
+    img = cv2.resize(img,(1200,700))
+    #track_hsv(img)
+    lower,up=getHSV(img)
+    print lower
+    print up
+
     cv2.destroyAllWindows()
 

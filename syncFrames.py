@@ -158,7 +158,7 @@ def changeExtension():
 
 
 if __name__ == '__main__':
-    init(50,setup=True,f=True,calib=False,)
+    init(50,setup=False,f=True,calib=False,)
     #calibrate(40)
     #changeExtension()
     print "All done."
