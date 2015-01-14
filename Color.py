@@ -9,12 +9,17 @@ import cv2
 import numpy as np
 import circleDetection as Detector
 from matplotlib import pyplot as plt
-import ROI42 as roi
+import HSV as h
+
 
 
 # define range of blue color in HSV
 lower_blue = np.array([92,  39, 146], dtype="uint8")
 upper_blue = np.array([114,  95, 255], dtype="uint8")
+#
+
+
+
 # define range of red color in HSV
 lower_red = np.array([0, 0, 230], dtype="uint8")
 upper_red = np.array([179, 255, 255], dtype="uint8")
@@ -114,7 +119,19 @@ def getColorMask(image, c):
     res = cv2.bitwise_and(im1, im1, mask=mask)
     
     return res
-    
+
+def getAutoColorMask(img):
+    im1 = cv2.GaussianBlur(img,(5,5),0)
+    hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
+    upper, lower = h.getHSV(hsv)
+
+    mask = cv2.inRange(hsv, lower, upper)
+    res = cv2.bitwise_and(im1, im1, mask=mask)
+    cv2.imshow('Result HSV',res)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    return res
+
 
 def back_projection(frame):
     src1_histogram = cv2.imread("images/blue_sphere_00.png")
@@ -273,10 +290,8 @@ if __name__ == "__main__":
     #main()
     img = cv2.imread('images/frames/blue/c2_image000.png')
     img = cv2.resize(img,(1200,700))
-    #track_hsv(img)
-    lower,up=getHSV(img)
-    print lower
-    print up
+    track_hsv(img)
+    getAutoColorMask(img)
 
     cv2.destroyAllWindows()
 
