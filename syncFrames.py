@@ -127,7 +127,7 @@ def calibrate(images):
     cam2.release()
 
 
-def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green','yellow','white']):
+def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green']):
     global path
     if calib:
         calibrate(25)
@@ -158,7 +158,8 @@ def changeExtension():
 
 
 if __name__ == '__main__':
-    init(50,setup=False,f=True,calib=False,)
+    cv2.namedWindow("Finish")
+    init(100,setup=False,f=True,calib=False,colors=['green'])
     #calibrate(40)
     #changeExtension()
     print "All done."
