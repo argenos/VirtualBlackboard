@@ -140,7 +140,7 @@ def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green','ye
     if f:
         print "Getting frames."
         for color in colors:
-            path = 'images/'+color+'_images/'
+            path = 'images/frames/'+color+'_images/'
             getSyncedFrames(frames)
             print "Press any key to continue..."
             cv2.waitKey(0)
