@@ -6,6 +6,8 @@ import cv2 as cv
 import glob
 import Color as Color
 import ROISelection as Cropper
+import projection as Artist
+import matplotlib.pyplot as plt
 
 
 def diff_frame(frame1, frame2, display):
@@ -110,17 +112,17 @@ def circles_by_contour(image, c, roi, full_display):
 
     if radius != 0:
         cv.circle(copy, center_abs, 1, (10, 255, 25), 5)
-        cv.circle(copy, center_abs, radius, (10, 10, 255), 2)
+        cv.circle(copy, center_abs, 15, (10, 10, 255), 2)
         #print "Center: ", center_abs
 
-    return copy
+    return copy, center_abs
 
 
 def main():
     print "VIRTUAL BOARD\n\n"
 
-    dir_name = "images/images_verde/"
-    color_ball = 'g'
+    dir_name = "images/images_azul/"
+    color_ball = 'b'
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
 
@@ -131,20 +133,38 @@ def main():
     total_frames = len(files)
     frame_number = 0
 
-    cal_frame = cv.imread(files[0])
+    cal_frame1 = cv.imread(files1[0])
+    cal_frame2 = cv.imread(files2[0])
     # WHAT: roi_xy = [x1, y1, x2, y2]
-    roi_xy = np.array([0, 0, cal_frame.shape[1], cal_frame.shape[0]])
-    roi_xy[0], roi_xy[1], roi_xy[2], roi_xy[3] = Cropper.getROI(cal_frame)
+    roi1_xy = np.array([0, 0, cal_frame1.shape[1], cal_frame1.shape[0]])
+    roi1_xy[0], roi1_xy[1], roi1_xy[2], roi1_xy[3] = Cropper.getROI(cal_frame1)
+    roi2_xy = np.array([0, 0, cal_frame2.shape[1], cal_frame2.shape[0]])
+    roi2_xy[0], roi2_xy[1], roi2_xy[2], roi2_xy[3] = Cropper.getROI(cal_frame2)
 
-    cv.namedWindow("Marker", cv.WINDOW_NORMAL)
+    cv.namedWindow("MarkerSide", cv.WINDOW_NORMAL)
+    cv.namedWindow("MarkerTop", cv.WINDOW_NORMAL)
+    #cv.namedWindow("Canvas", cv.WINDOW_NORMAL)
+    Artist.init()
+    plt.figure()
     while frame_number < total_frames:
-        c = circles_by_contour(cv.imread(files[frame_number]), c=color_ball, roi=roi_xy, full_display=False)
-        cv.imshow("Marker", c)
+        c, center = circles_by_contour(cv.imread(files[frame_number]), c=color_ball, roi=roi1_xy, full_display=False)
+        c2, center2 = circles_by_contour(cv.imread(files2[frame_number]), c=color_ball, roi=roi2_xy, full_display=False)
+        #virtual = Artist.re_project(center2)
+        cv.imshow("MarkerSide", c)
+        cv.imshow("MarkerTop", c2)
+        #cv.imshow("Canvas", virtual)
+        print center2
+        #plt.scatter(center2[0], -center2[1], c='r')
+        #plt.scatter(center[0], -center[1], c='g')
+        plt.scatter(center2[0], -center[1], c='b')
         k = cv.waitKey(10) & 0XFF
         if k == 27:
             cv.destroyAllWindows()
             break
         frame_number += 1
+    cv.destroyAllWindows()
+    plt.show()
+
     '''
     ###################################################################
     ## CONTOUR METHOD APPLYING COLOR MASK OVER ONE FRAME -> DEBUGGING
