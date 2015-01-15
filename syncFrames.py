@@ -2,7 +2,8 @@
 """
 Created on Wed Dec 10 23:16:01 2014
 
-@author: Argen
+@author: Argentina Ortega Sáinz
+@author: Nicolás Laverde Alfonso
 """
 import threading
 import cv2
@@ -126,7 +127,7 @@ def calibrate(images):
     cam2.release()
 
 
-def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green','yellow','white']):
+def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green']):
     global path
     if calib:
         calibrate(25)
@@ -140,7 +141,7 @@ def init(frames,setup=True,f = True,calib=False,colors=['blue','red','green','ye
     if f:
         print "Getting frames."
         for color in colors:
-            path = 'images/frames/'+color+'_images/'
+            path = 'images/frames/'+color+'/'
             getSyncedFrames(frames)
             print "Press any key to continue..."
             cv2.waitKey(0)
@@ -157,7 +158,8 @@ def changeExtension():
 
 
 if __name__ == '__main__':
-    init(50,setup=True,f=True,calib=False,)
+    cv2.namedWindow("Finish")
+    init(100,setup=False,f=True,calib=False,colors=['figures2'])
     #calibrate(40)
     #changeExtension()
     print "All done."
