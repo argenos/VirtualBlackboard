@@ -10,10 +10,10 @@
 %\setlength{\parskip}{\baselineskip}
 
 %opening
-\title{Computer Vision - Proposal}
+\title{Computer Vision - Virtual Whiteboard}
 \author{Argentina Ortega Sáinz \\
         Nicolás Alfonso Laverde}
-\date{November 20, 2014}
+\date{January 15, 2015}
 
 
 \begin{document}
@@ -21,24 +21,31 @@
 \maketitle
 \pagenumbering{arabic}
 %---------------------------------------------------------------------------------------------%
-\section*{Virtual Whiteboard.}
 
-The idea is to develop a tracking system for a predefined marker that can be used to paint as if it was a virtual whiteboard. The system would have the capabilities to recognize different “virtual markers” (but one at a time), each one with a different color, and to detect the strokes or traces made with them. Detected strokes are then draw.
-The aim behind it is to be able to project the drawings (traces of the marker) into a screen using of a video beam, and even to the point of saving them. This will allow the digitalization of notes made by the user of the system (marker carrier), such as a teacher, for later distribution and inspection.
+
+
+
+
+
+
+\section{Introduction.}
+Tracking system for a predefined marker that can be used to paint as if it was a virtual whiteboard. The system would have the capabilities to recognize different coloured “virtual markers” (but one at a time), and to detect the strokes or traces made with them. Detected strokes are then draw.
+The aim behind it is to be able to project the drawings (traces of the marker) into a screen using of a video projector, and even to the point of saving them. This will allow the digitalization of notes made by the user of the system (marker carrier), such as a teacher, for later distribution and inspection.
 %---------------------------------------------------------------------------------------------%
-\subsection*{Objective}
+\section{Objective.}
 Design a vision system able to recognize the strokes made with a predefined marker in a flat surface and to transform the strokes into drawings for later projection.
+\subsection{Specific Objectives}
 \begin{itemize}
 \item Design, calibrate and synchronize an orthogonal array of two cameras in order to capture videos simultaneously of a scene from different perspectives.
 \item Process two videos from different perspectives in order to detect strokes performed by a pre-defined marker.
 \item Simulate a whiteboard by drawing the detected strokes and later projecting the draws into a screen for visualization.
 \end{itemize}
 %---------------------------------------------------------------------------------------------%
-\subsection*{Motivation}
-Obtaining the position of a certain object in real time has other applications, most interesting for us the computation of position of a robot. By using a simple example such as the virtual whiteboard to familiarize ourselves with the Computer Vision concepts, it could be possible in the future to extend this method to a much more complex application.
+\section{Motivation.}
+Perception in a very important component of a autonomous system. Images and video signals provide a rich source of information about the environment in which an agent may be acting. Task like detection and recognition in scenes play a major part in most of the robotic applications, and so does it tracking. Applications where the agent must keep journal of the position of a moving object relay on speed and accuracy of the extraction of points in the space given images or video, which represents a position in a specific reference frame. Such systems deal with issues of calibration, synchronization and parallel processing in a efficient way, allowing a quick response according to the system design. Hence, with the virtual whiteboard we can deal with a tracking problem of a moving object in a semi-static scene, which can enlighten us in order to solve more complex task in the same field.
 %---------------------------------------------------------------------------------------------%
-\subsection*{Description}
-We will use an orthogonal arrange of cameras. This will allow us to reconstruct the 3D coordinates of the marker using 2D synchronized images, following a similar approach as mentioned in \cite{laganiere}. The board plane contains the "x" and "y" coordinates, which are obtained by the re-projection of points from the two view to the board plane. The "z" component (depth) will make two modes distinguishable: the “writing mode” and a “moving mode” . A similar approach is mentioned in \cite{zabulis}, but using hand gestures instead of markers.
+\section{Description.}
+The use of an orthogonal arrange of cameras allow us to reconstruct the 3D coordinates of the marker using 2D synchronized images, following a similar approach as mentioned in \cite{laganiere}. The board plane contains the "x" and "y" coordinates, which are obtained by the re-projection of points from the two views to the this plane. The "z" component (depth) will make two modes distinguishable: the “writing mode” and a “moving mode” . A similar approach is mentioned in \cite{zabulis}, but using hand gestures instead of markers.
 
 \begin{figure}[H]
     \begin{center}
@@ -53,26 +60,13 @@ The "writing mode" implies that the marker is close enough to the surface (scree
 
 In other words, an "active drawing" volume is defined, which allow us to make the distinction between the modes. This active plane is parallel to the screen plane.
 
-For the the system's output (drawing), we chose to back-project into the screen using a video-projector. Doing so, we can test the system at the same time; i.e. making the strokes and seeing the drawing correspondent to the movement of the marker. Projecting for the back allows us to avoid blocking the projected beam.
-
-Detection of different colors in different markers will allow the user to paint on the screen. A possible approach is mentioned in \cite{fieguth}, \cite{mason} or \cite{McKenna}, to name a few.
+For the the system's output (drawing), we proposed to project from the back into the screen using a video-projector. Doing so, we could test the system at the same time; i.e. making the strokes and seeing the drawing correspondent to the movement of the marker. Projecting for the back allows us to avoid blocking the projected beam.
 
 %------------------------------------------------------------------------------------------------%
-\subsection*{Set-Up}
-The setup consists of two cameras arranged orthogonally; one camera is placed on the ceiling, over the board, and the other one is place in the side. Both cameras are to be mounted as close to the board as possible.
+\section{Set-Up.}
+The setup consists of two cameras; one camera is placed on the ceiling, over the board, and the other one is place in the side. Both cameras are to be mounted as close to the board as possible.
 
-The selected cameras are two LiveCam from Microsoft, connected via USB. They have a frame rate of 30fps and a high resolution (up to 1920x1080). Additional, it offers an auto-focus feature from 0.1m to 10m.
-
-\begin{figure}[H]
-    \begin{center}
-	\includegraphics[width=12cm]{setup}
-	\caption{Initial setup.}
-    In the picture, the glass screen which allows us to back-project. The setup also illustrates the position of the cameras as well as the additional light source.
-	\label{fig:setup}
-    \end{center}
-\end{figure}
-
-A halogen lamp was added as a result of non-uniform lighting in the room (as seen in the picture).
+The selected cameras are two LiveCam from Microsoft, connected via USB. They have a frame rate of 30fps and a high resolution (up to 1920x1080). Additional, it offers an auto-focus feature from 0.1m to 10m. A halogen lamp was added as a result of non-uniform lighting in the room (as seen in the picture).
 
 \begin{figure}[H]
     \begin{center}
@@ -93,56 +87,76 @@ A halogen lamp was added as a result of non-uniform lighting in the room (as see
 \end{figure}
 
 %---------------------------------------------------------------------------------------------%
-\subsection*{Data}
+\section{Data.}
 As initialization a snapshot, one for each camera, is taken of the static background in order to be able to use them for segmentation later in the project. In addition, four snapshots are taken with the marker on each corner
 
-Our data consists of snapshots of each perspective taken by each camera respectively. The resolution of the images is 1920 x 1080 and a predefined number of frames was recorded while the strokes were being drawn. 
-
-These images are then processed by a PC generating the output, which consists of an image where the strokes are reprojected.
-
-%Our data consists in two videos of a scene captured with two cameras, each one giving us a different perspective. For design purposes, we will take videos of approx. 5 min duration, in which some strokes will be recorded. Using this, we will develop the detection and drawing system.
-
-%For the live demo, the system is supposed to work over on-line, meaning that the data for the cameras is streamed to a PC, where it is processed. The output of the system is then fed to a video-projector.
-
-%---------------------------------------------------------------------------------------------%
-%\subsection*{Assumptions}
-
-%\begin{itemize}
-%\item The cameras need to be calibrated every session in which video recording is intended, to reduce errors when computing the coordinates of the marker. Such calibration is needed because our physical board (glass screen) is mobile and it's possible that between sessions, the board has been moved by third parties.
-%\item The image plane of camera A is rotated 90 degrees with respect to the image plane of camera B along the y-axis. For such assumption, the cameras have to be mounted in an specific arrange shown in the set-up section.
-%\item The marker is sufficiently long in order to minimize occlusions. The color of the draw is chosen with the lid of the marker, so it has to be presented in the scene and in the tip of the marker.
-%\item Given that our set up uses a glass screen which is very delicate, a special non-non-marking object will be provided to avoid scratch the screen.
-%\end{itemize}
+Our data consists of snapshots of the two views taken by each camera respectively. The resolution of the images is 1920 x 1080 and a predefined number of frames was recorded while the strokes were being drawn. The frame rate is highly dependent of the laptop in which the cameras are connected; as consequence, the frame rate can not be fixed and is variable.
 
 %---------------------------------------------------------------------------------------------%
 
-\subsection*{Approach}
-%Following a similar approach as the one mentioned in \cite{conci}, but adapted to our needs, we decided to divide the project in the following tasks:
-The project was divided in the following sub-tasks:
+\section{Approach.}
+Our system proposal is comprised of two blocks: the marker detector block and the painter block. The maker detector is in charge of the detection of the marker in two synchronized views, and in the extraction of the pixel coordinates of the detected marker. Its inputs are two images from view 1 and 2, respectively, and it returns 2 pairs of pixel coordinates and a color. 
+
+This is then fed to the painter block, which handles the re-projection of the coordinates from the two camera views into the plane of the virtual board. Therefore, its inputs are the output of the marker detector block and its output is the plot of such coordinates in the virtual board.
+
+\begin{figure}[H]
+    \begin{center}
+	\includegraphics[width=8cm]{architecture}
+	\caption{System Description.}
+    Block-diagram of the virtual board system.
+	\label{fig:descr}
+    \end{center}
+\end{figure}
+
+Process-wise, we can identify 4 main stages: input, marker detection, position extraction and output. The flow of the system is serial, meaning that one stage is executed after the previous one has ended.
+\subsection{Input Stage}
+Consist in the taking of the snapshot of the scene from the two cameras. This is in general terms our input data. At first, video capture was desired, but due to some hardware issues, the idea was dropped; instead, synchronously capture of images was implemented. Similarly, we wanted to design an online system, meaning that the processing of each pair of images is done parallel to the capture process, and so the output is seen in real time. At the end we opted for an offline version of the system; a session is recorded and then is processed, hence the output can't be seen in real time. 
+This stage also deals with:
 \begin{itemize}
-    \item Video capture. This stage consist in the recording of the video from the two cameras. This is in general terms our input data. For this stage we have taken into account:
-    \begin{itemize}
-        \item  Control of the environment. Lighting conditions, external sources of noise and occlusions were addressed during Set-up.
-        \item Calibration of the cameras each time we want to record in a different work session. The calibration is needed given that the board (glass screen) can be moved from session to session. Autocalibration techniques consist of obtaining the intrinsic parameters of the camera based on principles of multiple view geometry, obtaining the fundamental matrix or using a Euclidean reconstruction. Two methods are available: Direct \cite{mendoncca} or stratification \cite{faugeras}. For more information see the references.
+        \item Control of the environment. We tried to control the lighting condition of our scene, but this prove to be a non-trivial task. The lighting conditions varied from session to session, which limited the performance of our system due to the design decision we made..
         \item Synchronization of the videos. This was done by syncing threads through the use of thread events. Each time the first thread is ready to take a snapshot it notifies the second one, and then both proceed to take a snapshot at approximately the same time.
-    \end{itemize}
- \item Marker detection. This was accomplished by using a selected Region of Interest, which had been converted to HSV color space. Previously selected lower and upper boundaries help us isolate the marker from the background. A median blur is applied. We use Otsu's binarization threshold to segment the marker from the scene, which calculates the threshold based on the histogram of the region of interest. This process is repeated for each frame, where only the region of interest is used during calculation in order to reduce the amount of data processed.
-   
-    %This step correspond to the detection of our region of interest which we will track in the whole video, being this region the point of the marker. As we mention, we intent to process the videos frame by frame, and we will have to be able to detect the same region in each one of the frames to keep a record of the motion of the marker. The tracking of the position represent the stroke (movement) made. Techniques such as edge detection or optical flow could serve us by analyzing which pixels in the image remain the same (in intensity or brightness). This reduces the area of interest in the video and therefore reduces the amount of data needed to be processed (for example by color detection).   
-    \item Color recognition. Once the marker was detected, the area with the marker was analyzed iby means of histograms. The color was detected in the RGB color space by using the RGB values found at the center of the circle that encloses the marker at the corner configuration sequence. 
-    %This stage deals with the identification of the color shown in the video. We will have to detect the pertinent region where our lid will be (back or front the marker) for later extract the color. In this step we have to analyze which color space is more suitable for easy recognition, such as RGB, RGB normalized, HSV and YCrCb. Color detection is in general based on the search of pixels of the area of interest in a certain color space using a histogram. In our case we will detect first a smaller area of interest (the tip of the marker) and then detect the color. Depending on the lighting conditions we might use a different color space.
-  
-    \item Position reconstruction. Once we have the marker detected in each frame, the next step is to get the world coordinates back from the image coordinates. Assuming we have calibrated the cameras to obtain the intrinsic and extrinsic parameters, and we are able to reconstruct the matrix P of the cameras, we could then transform the image coordinates of the marker to the world coordinates. Exploiting the fact that our cameras share an axis, from which we will determined if the marker is close enough to the board to activate the drawing mode, we can extract the $x_{camera-i}$ and $y_{camera-j}$ coordinates of the marker, transform them to world coordinates and re-project them to the frame of the board. The output of this step is a vector with the world coordinates which describes a stroke in the world frame.
-    \item Stroke draw. The stroke vector obtained from the position reconstruction is used to draw the stroke back into the screen, using a video-beam to project. For this step we need to draw the stoke with the color previously recognized.
+        \item Calibration of the system. Every time a new session is recorded, a calibration routine must be followed. First, the system takes snapshots of the static background, which are later used in the maker detection stage. Second, the system captures 4 pairs of images where the user must be indicating where the corners of the virtual board are; this defines de region of interest and reduces the computational burden of the system in following stages. Lastly, some variables must be set, such as: paths and directories to read and write data, type of selection of the ROI (manual or auto), method of detection (color-threshold or background-segmentation) and the color of the marker (automatic detection of such feature was not implemented).
 \end{itemize}
 
-%All the tasks, except the video capture stage, can be achieved independently up to some degree, making them more general. This will allow us to divided the workload between the two of us, work in each of the task alone, and finally integrate all the "pieces" together to build the overall system.
+\subsection{Marker detection.}
+As mention before, two methods are implemented:
+
+\subsubsection{Color-Threshold}
+This was accomplished by using a selected Region of Interest, which had been converted to HSV color space. Previously selected lower and upper boundaries help us isolate the marker from the background. A median blur is applied. We use Otsu's binarization adaptive threshold to segment the marker from the scene, which calculates the threshold based on the histogram of the region of interest. This process is repeated for each frame, where only the region of interest is used during calculation in order to reduce the amount of data processed.
+
+\subsubsection{Background-Segmentation}
+This make use of the snapshot of the static background taken back in the input stage. First, we subtract the backgrounds from the current pair of frames, respectively. Then, a binary adaptive thresholding is applied, to delete noise pixels and regions in the frames which were are in principle the same, but due to the lighting conditions seem like a new object was introduced to the scene. This allow us to isolate the marker and the user. 
+
+Applying a crop in the frame using the coordinates of the previously computed ROI, the isolation of the marker is further enhanced. Finally, contours are found, and the bigger one is selected, which then is used to compute the minimal circle that encloses the contour. This circles is said to be the marker.
 
 
-%Additionally, a intermediate step which we call "Pre-processing" could help us reduce dimentionality of the data. This mid-step includes filtering (for smoothing and noise reduction). We can study the possibility of transforming the whole video to gray values, process which will reduce the processing time by compacting the 3 color matrix into one using gray scale. Of course, for the color recognition, gray images won't work.
+\begin{figure}[H]
+    \begin{center}
+	\includegraphics[width=8cm]{marker-stage.png}
+	\caption{System Description.}
+    Block-diagram of the marker detector stage.
+	\label{fig:mark}
+    \end{center}
+\end{figure}
+
+\subsubsection*{Color recognition.}
+It was implemented but discarded due to the high dependency with the lighting conditions. The way it was implemented was by analysis histograms computation of a isolated marker (an image were only the marker is presented). The color was detected in the RGB color space by using the RGB values found at the center of the circle that encloses the marker at the corner configuration sequence. HSV histogram computation was also implemented, fitting a Gaussian distribution among the three components of the histogram for later calculations of probabilities of a pixel to belong to a certain color.
+
+\subsection{Position reconstruction.} 
+Once we have the marker detected in each frame, the next step is to get the world coordinates back from the image coordinates. We tried diverse method for calibration of two cameras, from stereo calibration, multiple-view geometry theory, fundamental matrix correspondence and homography computations. At the end, we decided to compute a homography using the y-pixel coordinate from view 1 (side view) and the x-pixel coordinate from view 2 (top view), and the homography between this set of points to the virtual board was calculated. 
+
+The corner snapshots used for the automatic ROI extraction were used, given that there are four corners which correspond to the boundaries of the board. The homography was extracted and then used for re-projection of the marker position in the 2 views to the virtual board.
+
+\begin{center}
+$ [x_{board}, y_{board}]_{pixel}= H*[x_{view2}, y_{view1}]_{pixel} $
+\end{center}
+
+
+\subsection{Output Stage} 
+The stroke vector obtained from the position reconstruction is used to draw the points (positions) back into the screen. The points are drawn according to the color selected and projected to the glass screen using a video-projector from the back.
 
 %---------------------------------------------------------------------------------------------%
-\subsection*{Results}
+\subsection{Results}
 
 All intermediate test will be done using the video recorded in the initial setup. 
 \begin{itemize}
@@ -171,8 +185,31 @@ All intermediate test will be done using the video recorded in the initial setup
 	\label{fig:marker}
     \end{center}
 \end{figure}
-\item Set of $(x,y)$ coordinates of the movement "painted"
-\item Algorithm that draws a line connecting a given set of points.
+
+\item Guideline
+\begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=0.45\textwidth]{guideline}
+	\caption{Raw shapes used as guideline for testing purposes. Each session, the user tried to follow the contour of the shapes as close as possible.}
+	\label{guide}
+	\end{center}
+\end{figure}
+
+\item Output of the system
+\begin{figure}[H]
+\begin{center}
+	\includegraphics[width=6 cm]{result3_board.jpg}
+	\includegraphics[width=6 cm]{result3_plot.jpg}\\
+	\includegraphics[width=6 cm]{result1_board.jpg}
+	\includegraphics[width=6 cm]{result1_plot.jpg}\\
+	\includegraphics[width=6 cm]{result4_board.jpg}
+	\includegraphics[width=6 cm]{result4_plot.jpg}\\
+	\includegraphics[width=6 cm]{result6_board.jpg}
+	\includegraphics[width=6 cm]{result6_plot.jpg}
+	\caption{Board View (left) and plot view (right) of the detection of the marker for 4 different sessions.}
+	\label{fig:res}
+    \end{center}
+\end{figure}
 \end{itemize}
 %---------------------------------------------------------------------------------------------%
 %\subsection*{Risks}
@@ -186,12 +223,31 @@ All intermediate test will be done using the video recorded in the initial setup
 %\end{itemize}
 
 %---------------------------------------------------------------------------------------------%
-%\subsection*{Evaluation Strategy}
-%We propose to evaluate the system as following:
-%\begin{itemize}
-%\item Accuracy: using a projected grid,we choose some points as reference. Then, we will touch such points and compare the displacement of the projected points (output of the system) with the references (ground truth). One drawback of this evaluation strategy is the systematic errors introduced by the human user; e.g., a human can not guarantee 100\% accuracy when touching the grid points.
-%\end{itemize}
+\section{Evaluation Strategy}
+We proposed to evaluate the system by two criteria:
+\begin{itemize}
+\item Accuracy: we project a set of raw shapes into the screen as a guideline for testing. Then we capture a session where the shape contours are followed with the marker for comparison between the projected points (output of the system) and the guidelines (ground truth). One drawback of this evaluation strategy is the systematic errors introduced by the human user; e.g., a human can't achieve 100\% accuracy when following the guidelines/contours.
+\item Time: we thought of measuring the time the system needed to show the re-projected marker in the board with respect to the time the marker was there. In other words, the delay between input and output of the system (how fast it is and if it works in real time). Sadly, as mentioned before, the system does not work in online mode, therefore, such criteria was abandoned.
+\end{itemize}
 %--------------------------------------------------------------------------------------------%
+\section{Conclusions}
+We offer an approach for designing a virtual board. We sum up some techniques applied to the solution of the problem and we are well aware of must needed improvements. Nevertheless, we can extract some conclusions from the work we developed.
+
+
+The capture of frames by our system is bad. The frame rate is variable and depends on the availability of RAM the laptop presents. At max we estimate a fps of 10, being this too slow. As a consequence, rapid movement of the marker lead to problems in the detection stage. Sometimes the sphere, which is our object-to-detect was not as sphere; instead, it was a blurry cylinder result of a slow frame rate and a fast motion.
+
+
+Due to this issue, we failed to implement the Hough Circle Transformation for detection circles in the frames. When the "sphericity" of the markers was lost, the transformation was not able to find circles. For this reason a contour detection was implemented, which rely in colour and background. Relying in color is a risk decision to take, given that lighting condition were not completely controllable; this meant that color thresholding does not applies for the same color sphere when the light change drastically. Such phenomena make our system high sensible against light.
+
+
+Contour as a detection method offers no high robustness. Due to the change in size of the sphere (relatively to the closeness of the marker to the cameras), relying on area as a descriptor is not a good idea. That was experienced many times, when some other contours were given the tag of "marker" just because their area was bigger; in the same manner, when the marker left the scene, some regions were big enough to be tagged as markers (false positives), producing errors in the output.
+
+
+Calibration was needed and not implemented. Although we obtain the intrinsic parameter of the cameras, we were not able to combine the multiple-view geometry to reconstruct the 3D coordinates of the marker by correspondence. The homography approach offers a easy alternative to achieve this, but not the proper one. Perhaps, rectification of the images using the intrinsics parameter of each camera could lead to better results.
+
+
+Finally, hardware issues delayed the progress of the project. We were not able to record videos or to access the parameters of the cameras; the second one became an issue when we found out the cameras had an autofocus feature embedded, which we were not able to turn off.
+
 
 \nocite{*}
 
