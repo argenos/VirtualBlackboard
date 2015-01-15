@@ -65,7 +65,7 @@ The selected cameras are two LiveCam from Microsoft, connected via USB. They hav
 
 \begin{figure}[H]
     \begin{center}
-%	\includegraphics[width=12cm]{setup}
+	\includegraphics[width=12cm]{setup}
 	\caption{Initial setup.}
     In the picture, the glass screen which allows us to back-project. The setup also illustrates the position of the cameras as well as the additional light source.
 	\label{fig:setup}
@@ -94,26 +94,25 @@ A halogen lamp was added as a result of non-uniform lighting in the room (as see
 
 %---------------------------------------------------------------------------------------------%
 \subsection*{Data}
+As initialization a snapshot, one for each camera, is taken of the static background in order to be able to use them for segmentation later in the project. In addition, four snapshots are taken with the marker on each corner
 
-Our data consists of snapshots of each perspective taken by each camera respectively. 
+Our data consists of snapshots of each perspective taken by each camera respectively. The resolution of the images is 1920 x 1080 and a predefined number of frames was recorded while the strokes were being drawn. 
 
-As initialization
-
-A predefined number of frames will be recorded while the strokes are being drawn. 
+These images are then processed by a PC generating the output, which consists of an image where the strokes are reprojected.
 
 %Our data consists in two videos of a scene captured with two cameras, each one giving us a different perspective. For design purposes, we will take videos of approx. 5 min duration, in which some strokes will be recorded. Using this, we will develop the detection and drawing system.
 
 %For the live demo, the system is supposed to work over on-line, meaning that the data for the cameras is streamed to a PC, where it is processed. The output of the system is then fed to a video-projector.
 
 %---------------------------------------------------------------------------------------------%
-\subsection*{Assumptions}
+%\subsection*{Assumptions}
 
-\begin{itemize}
-\item The cameras need to be calibrated every session in which video recording is intended, to reduce errors when computing the coordinates of the marker. Such calibration is needed because our physical board (glass screen) is mobile and it's possible that between sessions, the board has been moved by third parties.
-\item The image plane of camera A is rotated 90 degrees with respect to the image plane of camera B along the y-axis. For such assumption, the cameras have to be mounted in an specific arrange shown in the set-up section.
-\item The marker is sufficiently long in order to minimize occlusions. The color of the draw is chosen with the lid of the marker, so it has to be presented in the scene and in the tip of the marker.
-\item Given that our set up uses a glass screen which is very delicate, a special non-non-marking object will be provided to avoid scratch the screen.
-\end{itemize}
+%\begin{itemize}
+%\item The cameras need to be calibrated every session in which video recording is intended, to reduce errors when computing the coordinates of the marker. Such calibration is needed because our physical board (glass screen) is mobile and it's possible that between sessions, the board has been moved by third parties.
+%\item The image plane of camera A is rotated 90 degrees with respect to the image plane of camera B along the y-axis. For such assumption, the cameras have to be mounted in an specific arrange shown in the set-up section.
+%\item The marker is sufficiently long in order to minimize occlusions. The color of the draw is chosen with the lid of the marker, so it has to be presented in the scene and in the tip of the marker.
+%\item Given that our set up uses a glass screen which is very delicate, a special non-non-marking object will be provided to avoid scratch the screen.
+%\end{itemize}
 
 %---------------------------------------------------------------------------------------------%
 
@@ -139,7 +138,7 @@ All the tasks, except the video capture stage, can be achieved independently up 
 Additionally, a intermediate step which we call "Pre-processing" could help us reduce dimentionality of the data. This mid-step includes filtering (for smoothing and noise reduction). We can study the possibility of transforming the whole video to gray values, process which will reduce the processing time by compacting the 3 color matrix into one using gray scale. Of course, for the color recognition, gray images won't work.
 
 %---------------------------------------------------------------------------------------------%
-\subsection*{Expected Results}
+\subsection*{Results}
 
 All intermediate test will be done using the video recorded in the initial setup. 
 \begin{itemize}
@@ -149,22 +148,22 @@ All intermediate test will be done using the video recorded in the initial setup
 \item Algorithm that draws a line connecting a given set of points.
 \end{itemize}
 %---------------------------------------------------------------------------------------------%
-\subsection*{Risks}
-\begin{itemize}
-\item The computational power required by processing a synced input from two cameras could be a challenge as mentioned in \cite{martin}.
-\item The frame rate of the cameras has to be taking into account. A low frame rate means that fast moves will be hard to identify, while a high frame rate implies more frames to process.
-\item Illumination condition may inquire in difficulties when detecting the marker. Even when we have installed a halogen light source, we still could face some problems due to interference from other sources.
-\item Computational speed. We may suffer from a delay when drawing and projecting the detected strokes in the board due to the amount of processing we need in order produce the output. This could be seen if we make strokes in the board and the drawing is shown with some seconds (hopefully seconds) of delay.
-\item Depending on the frame rate of the cameras, we could suffer from systematic errors. This would imply that the accuracy of the drawing won't that the accuracy of the drawing won't be high, affected by the synchronization procedure mentioned before.
-\item The projected image has already a distortion due to the video-projector position. This could affect the measurement of the accuracy of the system.
-\end{itemize}
+%\subsection*{Risks}
+%\begin{itemize}
+%\item The computational power required by processing a synced input from two cameras could be a challenge as mentioned in \cite{martin}.
+%\item The frame rate of the cameras has to be taking into account. A low frame rate means that fast moves will be hard to identify, while a high frame rate implies more frames to process.
+%\item Illumination condition may inquire in difficulties when detecting the marker. Even when we have installed a halogen light source, we still could face some problems due to interference from other sources.
+%\item Computational speed. We may suffer from a delay when drawing and projecting the detected strokes in the board due to the amount of processing we need in order produce the output. This could be seen if we make strokes in the board and the drawing is shown with some seconds (hopefully seconds) of delay.
+%\item Depending on the frame rate of the cameras, we could suffer from systematic errors. This would imply that the accuracy of the drawing won't that the accuracy of the drawing won't be high, affected by the synchronization procedure mentioned before.
+%\item The projected image has already a distortion due to the video-projector position. This could affect the measurement of the accuracy of the system.
+%\end{itemize}
 
 %---------------------------------------------------------------------------------------------%
-\subsection*{Evaluation Strategy}
-We propose to evaluate the system as following:
-\begin{itemize}
-\item Accuracy: using a projected grid,we choose some points as reference. Then, we will touch such points and compare the displacement of the projected points (output of the system) with the references (ground truth). One drawback of this evaluation strategy is the systematic errors introduced by the human user; e.g., a human can not guarantee 100\% accuracy when touching the grid points.
-\end{itemize}
+%\subsection*{Evaluation Strategy}
+%We propose to evaluate the system as following:
+%\begin{itemize}
+%\item Accuracy: using a projected grid,we choose some points as reference. Then, we will touch such points and compare the displacement of the projected points (output of the system) with the references (ground truth). One drawback of this evaluation strategy is the systematic errors introduced by the human user; e.g., a human can not guarantee 100\% accuracy when touching the grid points.
+%\end{itemize}
 %--------------------------------------------------------------------------------------------%
 
 \nocite{*}
