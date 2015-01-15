@@ -179,8 +179,8 @@ def main():
     dir_name = "images/images_verde/"
     color_ball = 'g'
     # 1 for color-mask, 2 for background-segmentation
-    detector = 1
-    roi_method = 'manual'
+    detector = 2
+    roi_method = 'auto'
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
     bck_g1 = cv.imread("images/setup/background/background1.png")
@@ -247,14 +247,13 @@ def main():
         frame_number += 1
     cv.waitKey(10)
 
-
     cv.destroyAllWindows()
-    cv.imwrite("images/results/result%d_board.jpg" % i, virtual)
+    #cv.imwrite("images/results/result%d_board.jpg" % i, virtual)
     plt.xlim([0, 2000])
     plt.ylim([0, 1125])
     txt = "\ndetec=%d, roi=%s" % (detector, roi_method)
     plt.title(dir_name+txt)
-    plt.savefig('images/results/result%d_plot.jpg' % i)
+    #plt.savefig('images/results/result%d_plot.jpg' % i)
     plt.show()
 
 
