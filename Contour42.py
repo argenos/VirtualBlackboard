@@ -130,7 +130,7 @@ def getImgWithMarker(original,roi,c,returnMarker=False):
 
 
 def main():
-    ex = cv2.imread('images/images_rojo/c1_image20.png')
+    ex = cv2.imread('images/images_rojo/c1_image01.png')
     ex = cv2.GaussianBlur(ex, (9, 9), 0)
     roi1,roi2 = init(ex)
 
