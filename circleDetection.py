@@ -5,8 +5,13 @@ import cv2 as cv
 import glob
 
 
+def draw_one_circle(to_image, param):
+    cv.circle(to_image, (param[0], param[1]), 15, (0, 0, 255), 2)
+    # draw the center of the circle
+    cv.circle(to_image, (param[0], param[1]), 2, (200, 20, 200), 3)
+
 # Printing function for the found circles.
-def _print_circles(to_image, circles_param):
+def print_circles(to_image, circles_param):
     for k in circles_param[0, :]:
         # draw the outer circle
         cv.circle(to_image, (k[0], k[1]), k[2], (0, 0, 255), 2)
@@ -14,7 +19,16 @@ def _print_circles(to_image, circles_param):
         cv.circle(to_image, (k[0], k[1]), 2, (200, 20, 200), 3)
 
 
-def detect_circles(image):
+def hough_circles(image):
+    circles = cv.HoughCircles(image, cv.cv.CV_HOUGH_GRADIENT, dp=1, minDist=image.shape[0]/4,
+                               param1=140, param2=10, minRadius=5, maxRadius=15)
+    circles = np.uint16(np.around(circles))
+    print circles
+
+    return circles
+
+
+def compare_circle_detection(image):
     #-----------------------------------------------------------------------------------------
     # Method 1: Hough Circle Transformation.
     #-----------------------------------------------------------------------------------------
@@ -27,7 +41,7 @@ def detect_circles(image):
     circles = np.uint16(np.around(circles))
     #print circles
     c_image = image.copy()
-    _print_circles(c_image, circles)
+    print_circles(c_image, circles)
 
     #-----------------------------------------------------------------------------------------
     # Method 2: Hough Circles Transformation + Morphological Operations
@@ -45,7 +59,7 @@ def detect_circles(image):
     circles2 = np.uint16(np.around(circles2))
     #print circles
     c2_image = image.copy()
-    _print_circles(c2_image, circles2)
+    print_circles(c2_image, circles2)
 
     #-----------------------------------------------------------------------------------------
     # Method 3: Finding Contours
@@ -100,7 +114,7 @@ def detect_by_hough(directory):
         c_image = src2.copy()
         if circles is not None:
             circles = np.uint16(np.around(circles))
-            _print_circles(c_image, circles)
+            print_circles(c_image, circles)
 
         cv.imshow("Circles", c_image)
 
