@@ -71,3 +71,4 @@ target/
 *.log
 *.synctex.gz
 *.tex.bak
+*.bib.bak
