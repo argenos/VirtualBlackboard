@@ -117,25 +117,29 @@ These images are then processed by a PC generating the output, which consists of
 %---------------------------------------------------------------------------------------------%
 
 \subsection*{Approach}
-Following a similar approach as the one mentioned in \cite{conci}, but adapted to our needs, we decided to divide the project in the following tasks:
+%Following a similar approach as the one mentioned in \cite{conci}, but adapted to our needs, we decided to divide the project in the following tasks:
+The project was divided in the following sub-tasks:
 \begin{itemize}
-    \item Video capture. This stage consist in the recording of the video from the two cameras. This is in general terms our input data. For this stage we have to take into account:
+    \item Video capture. This stage consist in the recording of the video from the two cameras. This is in general terms our input data. For this stage we have taken into account:
     \begin{itemize}
-        \item $[$Nicolás and Argentina$]$ Control of the environment. Lighting conditions, external sources of noise and occlusions. For more information about this, please see the Set-up.
-        \item $[$Nicolás$]$ Calibration of the cameras each time we want to record in a different work session. The calibration is needed given that the board (glass screen) can be moved from session to session. Autocalibration techniques consist of obtaining the intrinsic parameters of the camera based on principles of multiple view geometry, obtaining the fundamental matrix or using a Euclidean reconstruction. Two methods are available: Direct \cite{mendoncca} or stratification \cite{faugeras}. For more information see the references.
-        \item $[$Argentina$]$ Synchronization of the videos. Because we are recording videos of the same scene but from different views, we need to synchronize both videos. With synchronized videos we meant a way to tell where the "starting" frame is in the camera 1 (video 1) and in the camera 2 (video 2). This will be performed by introducing an object as a clappper-board (filming technique) to make the parity of frames between the two videos.
-        \item $[$Argentina$]$ Selection of the resolution, if the camera allows such choice.
+        \item  Control of the environment. Lighting conditions, external sources of noise and occlusions were addressed during Set-up.
+        \item Calibration of the cameras each time we want to record in a different work session. The calibration is needed given that the board (glass screen) can be moved from session to session. Autocalibration techniques consist of obtaining the intrinsic parameters of the camera based on principles of multiple view geometry, obtaining the fundamental matrix or using a Euclidean reconstruction. Two methods are available: Direct \cite{mendoncca} or stratification \cite{faugeras}. For more information see the references.
+        \item Synchronization of the videos. This was done by syncing threads through the use of thread events. Each time the first thread is ready to take a snapshot it notifies the second one, and then both proceed to take a snapshot at approximately the same time.
     \end{itemize}
-    \item $[$Nicolás$]$ Color recognition. This stage deals with the identification of the color shown in the video. We will have to detect the pertinent region where our lid will be (back or front the marker) for later extract the color. In this step we have to analyze which color space is more suitable for easy recognition, such as RGB, RGB normalized, HSV and YCrCb. Color detection is in general based on the search of pixels of the area of interest in a certain color space using a histogram. In our case we will detect first a smaller area of interest (the tip of the marker) and then detect the color. Depending on the lighting conditions we might use a different color space.
-    \item $[$Argentina$]$ Marker detection. This step correspond to the detection of our region of interest which we will track in the whole video, being this region the point of the marker. As we mention, we intent to process the videos frame by frame, and we will have to be able to detect the same region in each one of the frames to keep a record of the motion of the marker. The tracking of the position represent the stroke (movement) made. Techniques such as edge detection or optical flow could serve us by analyzing which pixels in the image remain the same (in intensity or brightness). This reduces the area of interest in the video and therefore reduces the amount of data needed to be processed (for example by color detection).
-    \item $[$Nicolás$]$ Position reconstruction. Once we have the marker detected in each frame, the next step is to get the world coordinates back from the image coordinates. Assuming we have calibrated the cameras to obtain the intrinsic and extrinsic parameters, and we are able to reconstruct the matrix P of the cameras, we could then transform the image coordinates of the marker to the world coordinates. Exploiting the fact that our cameras share an axis, from which we will determined if the marker is close enough to the board to activate the drawing mode, we can extract the $x_{camera-i}$ and $y_{camera-j}$ coordinates of the marker, transform them to world coordinates and re-project them to the frame of the board. The output of this step is a vector with the world coordinates which describes a stroke in the world frame.
-    \item $[$Argentina$]$ Stroke draw. Finally, we will use the stroke vector (from the previous stage) to draw the stroke back into the screen, using a video-beam to project. For this step we need to draw the stoke with the color previously recognized.
+ \item Marker detection. This was accomplished by using a selected Region of Interest, which had been converted to HSV color space. Previously selected lower and upper boundaries help us isolate the marker from the background. A median blur is applied. We use Otsu's binarization threshold to segment the marker from the scene, which calculates the threshold based on the histogram of the region of interest. This process is repeated for each frame, where only the region of interest is used during calculation in order to reduce the amount of data processed.
+   
+    %This step correspond to the detection of our region of interest which we will track in the whole video, being this region the point of the marker. As we mention, we intent to process the videos frame by frame, and we will have to be able to detect the same region in each one of the frames to keep a record of the motion of the marker. The tracking of the position represent the stroke (movement) made. Techniques such as edge detection or optical flow could serve us by analyzing which pixels in the image remain the same (in intensity or brightness). This reduces the area of interest in the video and therefore reduces the amount of data needed to be processed (for example by color detection).   
+    \item Color recognition. Once the marker was detected, the area with the marker was analyzed iby means of histograms. The color was detected in the RGB color space by using the RGB values found at the center of the circle that encloses the marker at the corner configuration sequence. 
+    %This stage deals with the identification of the color shown in the video. We will have to detect the pertinent region where our lid will be (back or front the marker) for later extract the color. In this step we have to analyze which color space is more suitable for easy recognition, such as RGB, RGB normalized, HSV and YCrCb. Color detection is in general based on the search of pixels of the area of interest in a certain color space using a histogram. In our case we will detect first a smaller area of interest (the tip of the marker) and then detect the color. Depending on the lighting conditions we might use a different color space.
+  
+    \item Position reconstruction. Once we have the marker detected in each frame, the next step is to get the world coordinates back from the image coordinates. Assuming we have calibrated the cameras to obtain the intrinsic and extrinsic parameters, and we are able to reconstruct the matrix P of the cameras, we could then transform the image coordinates of the marker to the world coordinates. Exploiting the fact that our cameras share an axis, from which we will determined if the marker is close enough to the board to activate the drawing mode, we can extract the $x_{camera-i}$ and $y_{camera-j}$ coordinates of the marker, transform them to world coordinates and re-project them to the frame of the board. The output of this step is a vector with the world coordinates which describes a stroke in the world frame.
+    \item Stroke draw. The stroke vector obtained from the position reconstruction is used to draw the stroke back into the screen, using a video-beam to project. For this step we need to draw the stoke with the color previously recognized.
 \end{itemize}
 
-All the tasks, except the video capture stage, can be achieved independently up to some degree, making them more general. This will allow us to divided the workload between the two of us, work in each of the task alone, and finally integrate all the "pieces" together to build the overall system.
+%All the tasks, except the video capture stage, can be achieved independently up to some degree, making them more general. This will allow us to divided the workload between the two of us, work in each of the task alone, and finally integrate all the "pieces" together to build the overall system.
 
 
-Additionally, a intermediate step which we call "Pre-processing" could help us reduce dimentionality of the data. This mid-step includes filtering (for smoothing and noise reduction). We can study the possibility of transforming the whole video to gray values, process which will reduce the processing time by compacting the 3 color matrix into one using gray scale. Of course, for the color recognition, gray images won't work.
+%Additionally, a intermediate step which we call "Pre-processing" could help us reduce dimentionality of the data. This mid-step includes filtering (for smoothing and noise reduction). We can study the possibility of transforming the whole video to gray values, process which will reduce the processing time by compacting the 3 color matrix into one using gray scale. Of course, for the color recognition, gray images won't work.
 
 %---------------------------------------------------------------------------------------------%
 \subsection*{Results}
@@ -143,7 +147,24 @@ Additionally, a intermediate step which we call "Pre-processing" could help us r
 All intermediate test will be done using the video recorded in the initial setup. 
 \begin{itemize}
 \item Video captured simultaneously from both cameras. 
+\begin{figure}[H]
+    \begin{center}
+	%\includegraphics[width=8cm]{Video}
+	\caption{Two snapshots taken simultaneously.}
+
+	\label{fig:board}
+    \end{center}
+\end{figure}
+
 \item Identification of at least 3 colors to be used on three different markers.
+\begin{figure}[H]
+    \begin{center}
+	%\includegraphics[width=8cm]{MarkerDetection}
+	\caption{Marker detection}
+    Marker detected in both views. This is then used to detect the color of the stroke.
+	\label{fig:board}
+    \end{center}
+\end{figure}
 \item Set of $(x,y)$ coordinates of the movement "painted"
 \item Algorithm that draws a line connecting a given set of points.
 \end{itemize}
