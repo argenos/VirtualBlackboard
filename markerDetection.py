@@ -176,7 +176,7 @@ def circles_by_contour(image, c, roi, auto_threshold, full_display):
 def main():
     print "VIRTUAL BOARD\n"
     i = 10
-    dir_name = "images/images_verde/"
+    dir_name = "images/frames/green/"
     color_ball = 'g'
     # 1 for color-mask, 2 for background-segmentation
     detector = 2
@@ -220,8 +220,8 @@ def main():
             c2, center2 = circles_by_contour(cv.imread(files2[frame_number]), c=color_ball, roi=roi2_xy,
                                              auto_threshold=True, full_display=False)
         else:
-            diff1 = diff_frame(bck_g1, cv.imread(files1[frame_number]), display=False)
-            diff2 = diff_frame(bck_g2, cv.imread(files2[frame_number]), display=False)
+            diff1 = diff_frame(bck_g1, cv.imread(files1[frame_number]), display=True)
+            diff2 = diff_frame(bck_g2, cv.imread(files2[frame_number]), display=True)
             ret1, binary1 = cv.threshold(diff1, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
             ret1, binary2 = cv.threshold(diff2, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
             r1, center = circles_by_contour(binary1, None, roi1_xy, auto_threshold=False, full_display=False)
