@@ -143,15 +143,15 @@ def getColorMask(image, c):
     
     return res
 
-def getAutoColorMask(image,boundaries='combined')
+def getAutoColorMask(image,boundaries='combined'):
     im1 = cv2.GaussianBlur(image, (5, 5), 0)
     hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
     if boundaries == 'combined':
-        mask = cv2.inRange(hsv,global_lower,global_upper)
+        mask = cv2.inRange(hsv, global_lower, global_upper)
     elif boundaries == 'side':
-        mask = cv2.inRange(hsv,global_lower_side,global_upper_side)
+        mask = cv2.inRange(hsv, global_lower_side, global_upper_side)
     elif boundaries == 'top':
-        mask = cv2.inRange(hsv,global_lower_top,global_upper_top)
+        mask = cv2.inRange(hsv, global_lower_top, global_upper_top)
 
     res = cv2.bitwise_and(im1,im1,mask=mask)
     return res
