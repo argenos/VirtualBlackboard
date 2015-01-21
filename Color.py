@@ -4,47 +4,52 @@ Created on Mon Dec 15 12:20:11 2014
 
 @author: Argen
 """
-
 import cv2
 import numpy as np
 import circleDetection as Detector
 from matplotlib import pyplot as plt
 import HSV as h
-
-
+import ROI42 as roi
 
 # define range of blue color in HSV
 lower_blue = np.array([92,  39, 146], dtype="uint8")
 upper_blue = np.array([114,  95, 255], dtype="uint8")
-#New values
-#lower_blue = np.array([60, 41, 20], dtype="uint8")
-#upper_blue = np.array([121, 202, 210], dtype="uint8")
+# New values
+# lower_blue = np.array([60, 41, 20], dtype="uint8")
+# upper_blue = np.array([121, 202, 210], dtype="uint8")
 
 # define range of red color in HSV
 lower_red = np.array([0, 0, 230], dtype="uint8")
 upper_red = np.array([179, 255, 255], dtype="uint8")
-#New values
-#lower_red = np.array([0, 67, 61], dtype="uint8")
-#upper_red = np.array([179, 144, 255], dtype="uint8")
+# New values
+# lower_red = np.array([0, 67, 61], dtype="uint8")
+# upper_red = np.array([179, 144, 255], dtype="uint8")
 
 # define range of green color in HSV
 lower_green = np.array([37, 16, 186], dtype="uint8")
 upper_green = np.array([118, 184, 255], dtype="uint8")
-#New Values
-#lower_green = np.array([38, 70, 86], dtype="uint8")
-#upper_green = np.array([130, 145, 226], dtype="uint8")
+# New Values
+# lower_green = np.array([38, 70, 86], dtype="uint8")
+# upper_green = np.array([130, 145, 226], dtype="uint8")
 
-#Yellow
-#lower_yellow = np.array([29, 35, 67], dtype="uint8")
-#upper_yellow = np.array([57, 58, 255], dtype="uint8")
+# Yellow
+# lower_yellow = np.array([29, 35, 67], dtype="uint8")
+# upper_yellow = np.array([57, 58, 255], dtype="uint8")
 
-#White
-#lower_white = np.array([0, 0, 224], dtype="uint8")
-#upper_white = np.array([48, 18, 255], dtype="uint8")
+# White
+# lower_white = np.array([0, 0, 224], dtype="uint8")
+# upper_white = np.array([48, 18, 255], dtype="uint8")
 
+# Global boundaries
+global_lower_side = []
+global_upper_side = []
+global_lower_top = []
+global_upper_top = []
+global_lower = []
+global_upper = []
 
 def track_hsv(image):
-    #im1 = cv2.resize(image, (640, 480))
+    # im1 = cv2.resize(image, (640, 480))
     im1 = image.copy()
     im1 = cv2.GaussianBlur(im1, (5, 5), 0)
     # Convert BGR to HSV
@@ -138,36 +143,30 @@ def getColorMask(image, c):
     
     return res
 
-def getAutoColorMask(img):
-    im1 = cv2.GaussianBlur(img,(5,5),0)
-    u, l = h.getHSV(im1)
-    u = cv2.cvtColor(np.uint8([[u]]),cv2.COLOR_BGR2HSV)
-    l = cv2.cvtColor(np.uint8([[l]]),cv2.COLOR_BGR2HSV)
-
-    upper =np.uint8(np.zeros((1,1,3)))
-    lower =np.uint8(np.zeros((1,1,3)))
-
-    x = np.vstack((u,l))
-
-    for i in xrange(3):
-        upper[:,:,i] = np.max(x[:,:,i])
-        lower[:,:,i] = np.min(x[:,:,i])
-
-    upper = upper + 70
-    lower = lower - 70
-
-    print upper
-    print lower
 
 
-    hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
+def initializeBoundaries(imgside, imgtop):
+    global global_lower, global_lower_side, global_lower_top, global_upper, global_upper_side, global_upper_top
+    im1 = cv2.GaussianBlur(imgtop,(5,5),0)
+    l, u = h.getHSV(im1)
+    global_lower_top = l
+    global_upper_top = u
+    res1 = h.applyHSV(imgtop,l,u)
+    cv2.imshow('Result HSV',res1)
 
-    mask = cv2.inRange(hsv, lower, upper)
-    res = cv2.bitwise_and(im1, im1, mask=mask)
-    cv2.imshow('Result HSV',res)
+    im2 = cv2.GaussianBlur(imgside,(5,5),0)
+    l2,u2 = h.getHSV(im2)
+    global_lower_side = l2
+    global_upper_side = u2
+    res2 = h.applyHSV(imgside,l2,u2)
+
+    global_lower = np.min(np.vstack((global_lower_side,global_lower_top)),axis=0)
+    global_upper = np.max(np.vstack((global_upper_side,global_upper_top)),axis=0)
+    print global_lower,global_upper
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    return res
+    return res1,res2
 
 
 def back_projection(frame):
@@ -314,21 +313,29 @@ def main():
     print "Color Masking"
     directory = "images/images_azul/"
     frame = cv2.imread(directory+"c1_image00.png")
-    #test = cv2.imread("images/blue_sphere_00.png")
-    #track_hsv(frame)
-    #color_mask(frame, color='b', display=True)
-    #compute_histogram(test, 'rgb')
-    #compute_histogram(test, 'hsv')
+    # test = cv2.imread("images/blue_sphere_00.png")
+    # track_hsv(frame)
+    # color_mask(frame, color='b', display=True)
+    # compute_histogram(test, 'rgb')
+    # compute_histogram(test, 'hsv')
     processed = equalize_component(frame, 's')
-    #track_hsv(processed)
+    # track_hsv(processed)
     Detector.detect_circles(processed)
 
 if __name__ == "__main__":
-    #main()
-    img = cv2.imread('images/frames/blue/c2_image014.png')
-    img = cv2.resize(img,(1200,700))
-    track_hsv(img)
-    #getAutoColorMask(img)
+    # main()
+    img1 = cv2.imread('images/frames/blue/c1_image014.png')
+    img1 = cv2.resize(img1, (1200, 700))
+    x1, y1, x2, y2 = roi.getROI(img1)
+
+    im1 = img1[y1:y2, x1:x2]
+    # track_hsv(img)
+    img2 = cv2.imread('images/frames/blue/c2_image014.png')
+    img2 = cv2.resize(img2,(1200, 700))
+    x1, y1, x2, y2 = roi.getROI(img2)
+
+    im2 = img2[y1:y2, x1:x2]
+
+    initializeBoundaries(im1, im2)
 
     cv2.destroyAllWindows()
-

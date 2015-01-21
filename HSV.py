@@ -15,10 +15,8 @@ _rad = 0
 
 def init(img):
     cv2.namedWindow('HSV',cv2.WINDOW_NORMAL)
-    print "Please select a small area containing the marker."
-    x1,y1,x2,y2 = roi.getROI(img)
-
-    im = img[y1:y2,x1:x2]
+    #print "Please select a small area containing the marker."
+    im = img.copy()
     #im = cv2.resize(im,(300,300))
     cv2.imshow('HSV',im)
     copy = im.copy()
@@ -115,6 +113,7 @@ def findBoundaries(img):
 
     lower_boundary = np.array([minH,  minS, minV], dtype="uint8")
     upper_boundary = np.array([maxH,  maxS, maxV], dtype="uint8")
+    print lower_boundary,upper_boundary
     return lower_boundary, upper_boundary
 
 
@@ -126,8 +125,9 @@ def applyHSV(img,lb,ub):
     mask = cv2.inRange(hsv, lb, ub)
 
     res = cv2.bitwise_and(copy, copy, mask=mask)
-    res = cv2.resize(res,(640,480))
+    #res = cv2.resize(res,(640,480))
     cv2.imshow("Result", res)
+    return res
 
 
 
@@ -168,11 +168,11 @@ def getHSV(img):
         if key == 27:
             break
         elif key == ord("s"):
-            #cv2.destroyAllWindows()
-            #return up,lower
             getCirclePixels()
             l , u = findBoundaries(_im)
             applyHSV(original,l,u)
+            cv2.destroyAllWindows()
+            return l,u
             #cv2.imshow("Result", im_copy)
 
 if __name__ == '__main__':
