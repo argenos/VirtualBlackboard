@@ -13,7 +13,7 @@ def main():
     print "VIRTUAL BOARD\n"
     i = 1
     dir_name = "images/frames/red/"
-    color_ball = 'r'
+    color_ball = 'red'
     roi_method = 'auto'
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
@@ -46,6 +46,8 @@ def main():
     # Color Calibration using the corner images.
     color_ini1 = cv.imread("images/setup/corners/c1_corner01.png")
     color_ini2 = cv.imread("images/setup/corners/c2_corner01.png")
+    #color_ini1 = cv.imread(files1[25])
+    #color_ini2 = cv.imread(files2[25])
     color_ini1 = color_ini1[roi1_xy[1]:roi1_xy[3], roi1_xy[0]:roi1_xy[2], :]
     color_ini2 = color_ini2[roi2_xy[1]:roi2_xy[3], roi2_xy[0]:roi2_xy[2], :]
     Color.initializeBoundaries(color_ini1, color_ini2)
