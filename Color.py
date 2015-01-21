@@ -48,6 +48,7 @@ global_upper_top = []
 global_lower = []
 global_upper = []
 
+
 def track_hsv(image):
     # im1 = cv2.resize(image, (640, 480))
     im1 = image.copy()
@@ -100,8 +101,6 @@ def track_hsv(image):
     cv2.destroyAllWindows()
 
 
-
-
 def color_mask(image, color, display):
     #im1 = cv2.GaussianBlur(image, (5, 5), 0)
     im1 = image.copy()
@@ -143,7 +142,8 @@ def getColorMask(image, c):
     
     return res
 
-def getAutoColorMask(image,boundaries='combined'):
+
+def getAutoColorMask(image, boundaries='combined'):
     im1 = cv2.GaussianBlur(image, (5, 5), 0)
     hsv = cv2.cvtColor(im1, cv2.COLOR_BGR2HSV)
     if boundaries == 'combined':
@@ -153,32 +153,31 @@ def getAutoColorMask(image,boundaries='combined'):
     elif boundaries == 'top':
         mask = cv2.inRange(hsv, global_lower_top, global_upper_top)
 
-    res = cv2.bitwise_and(im1,im1,mask=mask)
-    return res
+    res = cv2.bitwise_and(im1, im1, mask=mask)
+    return res, mask
 
 
 def initializeBoundaries(imgside, imgtop):
     global global_lower, global_lower_side, global_lower_top, global_upper, global_upper_side, global_upper_top
-    im1 = cv2.GaussianBlur(imgtop,(5,5),0)
+    im1 = cv2.GaussianBlur(imgtop, (5, 5), 0)
     l, u = h.getHSV(im1)
     global_lower_top = l
     global_upper_top = u
-    res1 = h.applyHSV(imgtop,l,u)
-    cv2.imshow('Result HSV',res1)
+    res1 = h.applyHSV(imgtop, l, u)
 
-    im2 = cv2.GaussianBlur(imgside,(5,5),0)
+    im2 = cv2.GaussianBlur(imgside, (5, 5), 0)
     l2,u2 = h.getHSV(im2)
     global_lower_side = l2
     global_upper_side = u2
     res2 = h.applyHSV(imgside,l2,u2)
 
-    global_lower = np.min(np.vstack((global_lower_side,global_lower_top)),axis=0)
-    global_upper = np.max(np.vstack((global_upper_side,global_upper_top)),axis=0)
-    print global_lower,global_upper
+    global_lower = np.min(np.vstack((global_lower_side, global_lower_top)), axis=0)
+    global_upper = np.max(np.vstack((global_upper_side, global_upper_top)), axis=0)
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    return res1,res2
+    print "Global Lower = ", global_lower
+    print "Global Upper = ", global_upper
+
+    return res1, res2
 
 
 def back_projection(frame):

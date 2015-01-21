@@ -13,6 +13,7 @@ clicks = 0
 _xc = _yc = 0
 _rad = 0
 
+
 def init(img):
     cv2.namedWindow('HSV',cv2.WINDOW_NORMAL)
     #print "Please select a small area containing the marker."
@@ -31,12 +32,14 @@ def lowerbound(x,y):
     cv2.imshow('Selected region',im_copy)
     return lower
 
+
 def upperbound(x,y):
     global im_copy,up
     up = im_copy[y,x]
     cv2.circle(im_copy,(x,y),1,(255,255,255),1)
     cv2.imshow('Selected region',im_copy)
     return up
+
 
 def computeRadius(x,y):
     global _rad, _xc, _yc
@@ -47,6 +50,7 @@ def paintCircle():
     global im_copy
     cv2.circle(im_copy,(_xc,_yc),_rad,(0,0,255),-1)
     cv2.imshow("Selected region",im_copy)
+
 
 def getCirclePixels():
     global im_copy, _xc, _yc, _rad
@@ -72,6 +76,7 @@ def inCircle(x,y):
     else:
         return False
 
+
 def findBoundaries(img):
     global im_copy
     '''
@@ -90,7 +95,7 @@ def findBoundaries(img):
     maxH = 0
     maxS = 0
     maxV = 0
-    print hsv.shape
+    #print hsv.shape
 
     for k in xrange(pixels.shape[0]):
         #for x in xrange(pixels.shape[1]):
@@ -113,11 +118,13 @@ def findBoundaries(img):
 
     lower_boundary = np.array([minH,  minS, minV], dtype="uint8")
     upper_boundary = np.array([maxH,  maxS, maxV], dtype="uint8")
-    print lower_boundary,upper_boundary
+
+    print lower_boundary, upper_boundary
+
     return lower_boundary, upper_boundary
 
 
-def applyHSV(img,lb,ub):
+def applyHSV(img, lb, ub):
     copy = img.copy()
     copy = cv2.GaussianBlur(copy, (5, 5), 0)
     hsv = cv2.cvtColor(copy, cv2.COLOR_BGR2HSV)
@@ -126,9 +133,9 @@ def applyHSV(img,lb,ub):
 
     res = cv2.bitwise_and(copy, copy, mask=mask)
     #res = cv2.resize(res,(640,480))
-    cv2.imshow("Result", res)
-    return res
+    #cv2.imshow("Result", res)
 
+    return res
 
 
 def mouseHSV(event, x, y, flags, param):
@@ -158,6 +165,7 @@ def mouseHSV(event, x, y, flags, param):
             cv2.imshow("Selected region", im_copy)
             done = True
 
+
 def getHSV(img):
     global original,_im, im_copy
     original,_im, im_copy = init(img)
@@ -169,10 +177,10 @@ def getHSV(img):
             break
         elif key == ord("s"):
             getCirclePixels()
-            l , u = findBoundaries(_im)
-            applyHSV(original,l,u)
+            l, u = findBoundaries(_im)
+            applyHSV(original, l, u)
             cv2.destroyAllWindows()
-            return l,u
+            return l, u
             #cv2.imshow("Result", im_copy)
 
 if __name__ == '__main__':
