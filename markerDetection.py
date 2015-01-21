@@ -123,9 +123,9 @@ def get_corners(display):
 
 
 def refine_roi(corner1, corner2):
-    d = 30
-    roi1 = np.array([corner1[0][0]-d, corner1[0][1]-d, corner1[3][0]+d, corner1[2][1]+d])
-    roi2 = np.array([corner2[3][0]-d, corner2[1][1]-d, corner2[0][0]+d, corner2[0][1]+d])
+    d = 60
+    roi1 = np.array([corner1[0][0]-d, corner1[0][1]-d, corner1[2][0]+d, corner1[2][1]+d])
+    roi2 = np.array([corner2[1][0]-d, corner2[1][1]-d, corner2[0][0]+d, corner2[0][1]+d])
     return roi1, roi2
 
 
