@@ -159,7 +159,7 @@ def changeExtension():
 
 if __name__ == '__main__':
     cv2.namedWindow("Finish")
-    init(100,setup=False,f=True,calib=False,colors=['figures2'])
+    init(100,setup=False,f=True,calib=False,colors=['live'])
     #calibrate(40)
     #changeExtension()
     print "All done."

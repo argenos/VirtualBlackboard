@@ -88,6 +88,9 @@ def getMarker(img):
     thresh2 = cv2.adaptiveThreshold(imgray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
     thresh3 = cv2.adaptiveThreshold(imgray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,17,2)
     ret2,thresh4 = cv2.threshold(imgray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    cv2.imshow('Threshold',thresh4)
+    cv2.waitKey(0)
+    cv2.destroyWindow('Threshold')
     contours, hierarchy = cv2.findContours(thresh4,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
     i = 0
     bigArea = 0

@@ -139,7 +139,7 @@ Applying a crop in the frame using the coordinates of the previously computed RO
     \end{center}
 \end{figure}
 
-\subsubsection*{Color recognition.}
+\subsubsection{Color recognition.}
 It was implemented but discarded due to the high dependency with the lighting conditions. The way it was implemented was by analysis histograms computation of a isolated marker (an image were only the marker is presented). The color was detected in the RGB color space by using the RGB values found at the center of the circle that encloses the marker at the corner configuration sequence. HSV histogram computation was also implemented, fitting a Gaussian distribution among the three components of the histogram for later calculations of probabilities of a pixel to belong to a certain color.
 
 \subsection{Position reconstruction.} 
@@ -158,9 +158,8 @@ The stroke vector obtained from the position reconstruction is used to draw the 
 %---------------------------------------------------------------------------------------------%
 \subsection{Results}
 
-All intermediate test will be done using the video recorded in the initial setup. 
 \begin{itemize}
-\item Video captured simultaneously from both cameras. 
+\item Snapshots captured synchronized from both cameras. 
 \begin{figure}[H]
     \begin{center}
 	\includegraphics[width=0.45\textwidth]{FrameSide}
