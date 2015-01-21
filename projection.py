@@ -64,6 +64,39 @@ def project_on_board(side_coord, top_coord, color):
     return canvas, canvas_point[0][0]
 
 
+def project_on_board2(side_coord, top_coord, color):
+    x_s = side_coord[0]
+    y_s = side_coord[1]
+    x_t = top_coord[0]
+    y_t = top_coord[1]
+    point_side = np.float32([x_s, y_s])
+    point_top = np.float32([x_t, y_t])
+
+    point_side = point_side.reshape(-1, 1, 2)
+    point_top = point_top.reshape(-1, 1, 2)
+
+    canvas_side = cv.perspectiveTransform(point_side, homo_1)
+    canvas_top = cv.perspectiveTransform(point_top, homo_2)
+    canvas_point = np.array([canvas_side[0][0, 1], canvas_top[0][0, 0]])
+    print "CC: ", canvas_point
+    canvas_point = np.float32(canvas_point)
+    canvas_point = canvas_point.reshape(-1, 1, 2)
+    print "Side: ", canvas_side[0][0]
+    print "Top: ", canvas_top[0][0]
+    print "Canvas: ", canvas_point[0][0]
+
+    if color == 'r':
+        cc = [0, 0, 255]
+    elif color == 'g':
+        cc = [0, 255, 0]
+    else:
+        cc = [255, 0, 0]
+
+    cv.polylines(canvas, [np.int32(canvas_point)], True, cc, 5, cv.CV_AA)
+
+    return canvas, canvas_point[0][0]
+
+
 
 def main():
     print "Fk"

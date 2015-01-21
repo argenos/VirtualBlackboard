@@ -29,6 +29,24 @@ def diff_frame(frame1, frame2, display):
     return opening
 
 
+def diff_frame_hsv(frame1, frame2, display, component):
+    im1 = cv.cvtColor(frame1, cv.COLOR_BGR2HSV)
+    im2 = cv.cvtColor(frame2, cv.COLOR_BGR2HSV)
+    im1 = cv.GaussianBlur(im1, (3, 3), sigmaY=0, sigmaX=0)
+    im2 = cv.GaussianBlur(im2, (3, 3), sigmaY=0, sigmaX=0)
+    diff = cv.absdiff(im1[:, :, component], im2[:, :, component])
+    kernel = np.ones((3, 3), np.uint8)
+    opening = cv.morphologyEx(diff, cv.MORPH_OPEN, kernel, iterations=2)
+
+    if display:
+        cv.namedWindow("Difference-OP", cv.WINDOW_NORMAL)
+        cv.imshow("Difference-OP", np.hstack((diff, opening)))
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+
+    return diff
+
+
 def detect_background(frame1, frame2):
     f1 = cv.cvtColor(frame1, cv.COLOR_BGR2GRAY)
     f2 = cv.cvtColor(frame2, cv.COLOR_BGR2GRAY)
@@ -141,7 +159,7 @@ def circles_by_contour(image, c, roi, auto_threshold, full_display):
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
     i = 0
     index = -1
-    biggest_area = 20
+    biggest_area = 10
 
     for cnt in contours:
         area = cv.contourArea(cnt)
@@ -176,8 +194,8 @@ def circles_by_contour(image, c, roi, auto_threshold, full_display):
 def main():
     print "VIRTUAL BOARD\n"
     i = 10
-    dir_name = "images/frames/green/"
-    color_ball = 'g'
+    dir_name = "images/frames/blue/"
+    color_ball = 'b'
     # 1 for color-mask, 2 for background-segmentation
     detector = 2
     roi_method = 'auto'
@@ -220,10 +238,30 @@ def main():
             c2, center2 = circles_by_contour(cv.imread(files2[frame_number]), c=color_ball, roi=roi2_xy,
                                              auto_threshold=True, full_display=False)
         else:
-            diff1 = diff_frame(bck_g1, cv.imread(files1[frame_number]), display=True)
-            diff2 = diff_frame(bck_g2, cv.imread(files2[frame_number]), display=True)
-            ret1, binary1 = cv.threshold(diff1, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
-            ret1, binary2 = cv.threshold(diff2, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
+            #diff1 = diff_frame(bck_g1, cv.imread(files1[frame_number]), display=False)
+            #diff2 = diff_frame(bck_g2, cv.imread(files2[frame_number]), display=False)
+            diff1 = diff_frame_hsv(bck_g1, cv.imread(files1[frame_number]), display=False, component=2)
+            diff2 = diff_frame_hsv(bck_g2, cv.imread(files2[frame_number]), display=False, component=2)
+
+            '''
+            dd1 = diff1[roi1_xy[1]:roi1_xy[3], roi1_xy[0]:roi1_xy[2]]
+            dd2 = diff2[roi2_xy[1]:roi2_xy[3], roi2_xy[0]:roi2_xy[2]]
+            ret11, binary11 = cv.threshold(dd1, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
+            ret22, binary22 = cv.threshold(dd2, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
+            median1 = cv.medianBlur(binary11, 3)
+            median2 = cv.medianBlur(binary22, 3)
+            roi1_none = np.array([0, 0, median1.shape[1], median1.shape[0]])
+            roi2_none = np.array([0, 0, median2.shape[1], median2.shape[0]])
+            r1, center = circles_by_contour(median1, None, roi1_none, auto_threshold=False, full_display=False)
+            r2, center2 = circles_by_contour(median2, None, roi2_none, auto_threshold=False, full_display=False)
+            center = center + np.array([roi1_xy[0], roi1_xy[1], 0])
+            center2 = center2 + np.array([roi2_xy[0], roi2_xy[1], 0])
+            '''
+
+            #ret1, binary1 = cv.threshold(diff1, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
+            #ret2, binary2 = cv.threshold(diff2, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
+            ret1, binary1 = cv.threshold(diff1, 50, 255, cv.THRESH_BINARY)
+            ret2, binary2 = cv.threshold(diff2, 50, 255, cv.THRESH_BINARY)
             r1, center = circles_by_contour(binary1, None, roi1_xy, auto_threshold=False, full_display=False)
             r2, center2 = circles_by_contour(binary2, None, roi2_xy, auto_threshold=False, full_display=False)
             c = cv.imread(files1[frame_number])
@@ -232,8 +270,11 @@ def main():
             Circle.draw_one_circle(c2, center2)
 
         virtual, point = Artist.project_on_board(center[1], center2[0], color_ball)
-        cv.imshow("MarkerSide", c)
-        cv.imshow("MarkerTop", c2)
+        #virtual, point = Artist.project_on_board2(c, c2, color_ball)
+        #cv.imshow("MarkerSide", median1)
+        #cv.imshow("MarkerTop", median2)
+        #cv.imshow("MarkerSide", c)
+        #cv.imshow("MarkerTop", c2)
         #cv.imshow("Canvas", virtual)
 
         #plt.scatter(center2[0], -center2[1], c='r')
@@ -255,7 +296,6 @@ def main():
     plt.title(dir_name+txt)
     #plt.savefig('images/results/result%d_plot.jpg' % i)
     plt.show()
-
 
 
 if __name__ == "__main__":
