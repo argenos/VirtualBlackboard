@@ -54,7 +54,7 @@ def main():
     # Initialization.
     cv.namedWindow("MarkerSide", cv.WINDOW_NORMAL)
     cv.namedWindow("MarkerTop", cv.WINDOW_NORMAL)
-    cv.namedWindow("Canvas", cv.WINDOW_NORMAL)
+    #cv.namedWindow("Canvas", cv.WINDOW_NORMAL)
     drawer.init()
     plt.figure()
 
@@ -94,7 +94,7 @@ def main():
 
         cv.imshow("MarkerSide", frame_c1)
         cv.imshow("MarkerTop", frame_c2)
-        cv.imshow("Canvas", virtual)
+        #cv.imshow("Canvas", virtual)
 
         plt.scatter(point[0], -point[1]+virtual.shape[0], c=color_ball)
         k = cv.waitKey(1) & 0XFF
