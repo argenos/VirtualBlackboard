@@ -9,14 +9,17 @@ import cv2
 import numpy as np
 import Color as color
 
-path = 'images/images_azul/'
+path = 'images/frames/blue/'
 length = glob.glob(path+'*.png').__len__()/2
 
 def playSingleVideo(path, mask=True):
     #print length
     i = 0
+    print 'Press any key to play...'
+    cv2.waitKey(0)
+
     while True:
-        im = cv2.imread(path+'c1_image%.2d.png'%i)
+        im = cv2.imread(path+'c1_image%.3d.png'%i)
         
         if mask:
             img = cv2.resize(im,(640,480))
@@ -33,16 +36,22 @@ def playSingleVideo(path, mask=True):
     
 def playTwoVideos(path, mask=False, marker=True):
     i = 0
+
+    print 'Press any key to play...'
+    cv2.waitKey(0)
     while True:
-        im1 = cv2.imread(path+'c1_image%.2d.png'%i)
-        im2 = cv2.imread(path+'c2_image%.2d.png'%i)
+        im1 = cv2.imread(path+'c1_image%.3d.png'%i)
+        im2 = cv2.imread(path+'c2_image%.3d.png'%i)
         
         if mask:
             img1 = cv2.resize(im1,(640,480))
             img2 = cv2.resize(im2,(640,480))
             img1 = color.getColorMask(img1,'b')
             img2 = color.getColorMask(img2,'b')
-        
+        else:
+            img1 = cv2.resize(im1,(640,480))
+            img2 = cv2.resize(im2,(640,480))
+
         img = np.hstack((img1,img2))        
         
         cv2.imshow("Picture",img)
@@ -57,5 +66,5 @@ def playTwoVideos(path, mask=False, marker=True):
 
 
 if __name__ == '__main__':
-    playSingleVideo(path)
-    #playTwoVideos(path)
+    #playSingleVideo(path)
+    playTwoVideos(path)

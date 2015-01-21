@@ -325,10 +325,10 @@ def main():
 
 if __name__ == "__main__":
     #main()
-    img = cv2.imread('images/images_azul/c2_image00.png')
+    img = cv2.imread('images/frames/blue/c2_image014.png')
     img = cv2.resize(img,(1200,700))
-    #track_hsv(img)
-    getAutoColorMask(img)
+    track_hsv(img)
+    #getAutoColorMask(img)
 
     cv2.destroyAllWindows()
 
