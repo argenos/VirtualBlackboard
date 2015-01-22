@@ -152,7 +152,7 @@ $ [x_{board}, y_{board}]_{pixel}= H*[x_{view2}, y_{view1}]_{pixel} $
 
 
 \subsection[Output Stage]{Output Stage\footnote{NLA}} 
-The stroke vector obtained from the position reconstruction is used to draw the points (positions) back into the screen. The points are drawn according to the color selected and projected to the glass screen using a video-projector from the back.
+The stroke vector obtained from the position reconstruction is used to draw the points (positions) back into the screen. The points are drawn according to the color selected and projected to the glass screen using a video-projector from the back. The implementation consisted in a black window of 1920x1080 where the center of the detected circles enclosing the marker were re-projected; we also provided a standard python plot (using the toolbox matplotlib) with the re-projection.
 
 %---------------------------------------------------------------------------------------------%
 \subsection[Results]{Results}
@@ -184,7 +184,7 @@ The stroke vector obtained from the position reconstruction is used to draw the 
     \end{center}
 \end{figure}
 \newpage
-\item Guideline\footnote{NLA}
+\item Guideline\footnote{NLA-AOS}
 \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=0.45\textwidth]{guideline}
@@ -192,19 +192,32 @@ The stroke vector obtained from the position reconstruction is used to draw the 
 	\label{guide}
 	\end{center}
 \end{figure}
+
+\item Comparison between color masking approach, background segmentation approach and a combined approach.\footnote{NLA}
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=4 cm]{result1_plot.jpg}
+		\includegraphics[width=4 cm]{result3_plot.jpg}
+		\includegraphics[width=4 cm]{result103_plot.jpg}\\
+		\includegraphics[width=4 cm]{result2_plot.jpg}
+		\includegraphics[width=4 cm]{result4_plot.jpg}
+		\includegraphics[width=4 cm]{result101_plot.jpg}\\
+		\includegraphics[width=4 cm]{result5_plot.jpg}
+		\includegraphics[width=4 cm]{result6_plot.jpg}
+		\includegraphics[width=4 cm]{result102_plot.jpg}
+		\caption{Plot View of 3 recorded session using different approaches.}
+		HSV Color Masking (left), Background-Segmentation (middle) and HSV Auto-Color Masking and Background Masking (right).
+		\label{fig:comp}
+    	\end{center}
+\end{figure}
 \newpage
 \item Output of the system\footnote{NLA}
 \begin{figure}[H]
 \begin{center}
-	\includegraphics[width=6 cm]{result3_board.jpg}
-	\includegraphics[width=6 cm]{result3_plot.jpg}\\
-	\includegraphics[width=6 cm]{result1_board.jpg}
-	\includegraphics[width=6 cm]{result1_plot.jpg}\\
-	\includegraphics[width=6 cm]{result4_board.jpg}
-	\includegraphics[width=6 cm]{result4_plot.jpg}\\
-	\includegraphics[width=6 cm]{result6_board.jpg}
-	\includegraphics[width=6 cm]{result6_plot.jpg}
-	\caption{Board View (left) and plot view (right) of the detection of the marker for 4 different sessions.}
+	\includegraphics[width=4 cm]{result101_board.jpg}
+	\includegraphics[width=4 cm]{result102_board.jpg}
+	\includegraphics[width=4 cm]{result103_board.jpg}
+	\caption{Board View of 3 recorded session.}
 	\label{fig:res}
     \end{center}
 \end{figure}
@@ -224,8 +237,9 @@ The stroke vector obtained from the position reconstruction is used to draw the 
 \section[Evaluation Strategy]{Evaluation Strategy\footnote{NLA}}
 We proposed to evaluate the system by two criteria:
 \begin{itemize}
-\item Accuracy: we project a set of raw shapes into the screen as a guideline for testing. Then we capture a session where the shape contours are followed with the marker for comparison between the projected points (output of the system) and the guidelines (ground truth). One drawback of this evaluation strategy is the systematic errors introduced by the human user; e.g., a human can't achieve 100\% accuracy when following the guidelines/contours.
-\item Time: we thought of measuring the time the system needed to show the re-projected marker in the board with respect to the time the marker was there. In other words, the delay between input and output of the system (how fast it is and if it works in real time). Sadly, as mentioned before, the system does not work in online mode, therefore, such criteria was abandoned.
+\item Accuracy: we projected a set of raw shapes into the screen as a guideline for testing. This evaluation strategy relies in the capture of a session where the shape contours are followed with the marker for comparison between the projected points (output of the system) and the guidelines (ground truth). The drawback with this evaluation strategy is the systematic errors introduced by the human user, given that a human can't achieve 100\% accuracy when following the guidelines/contours. Therefore, we didn't find this strategy meaningful as evaluation. 
+\item Time: we thought of measuring the time the system needed to show the re-projected marker in the board with respect to the time the marker was there. In other words, the delay between input and output of the system (how fast it is and if it works in real time). Unfortunately, as mentioned before, the system does not work in online mode, therefore, such criteria was abandoned.
+\item Confusion Matrix: as a final score of the performance of our system, we intended to use a confusion matrix for the marker detection; we would had to count how many false positives and false negatives were encounter during the session, and based on those build the matrix. We discarded the approach due to the dependency between the system performance and the manual selection of the marker region (done by the user) used to extract low and upper boundaries for the color masking process. Also, the count for false positives and negatives would had to be done manually (by looking frame by frame), and so introducing systematic errors.
 \end{itemize}
 %--------------------------------------------------------------------------------------------%
 \section[Conclusions]{Conclusions}

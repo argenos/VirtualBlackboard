@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 
 def main():
     print "VIRTUAL BOARD\n"
-    i = 1
+    i = 101
     dir_name = "images/frames/red/"
-    color_ball = 'red'
+    color_ball = 'r'
     roi_method = 'auto'
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
@@ -105,12 +105,12 @@ def main():
 
     cv.waitKey(10)
     cv.destroyAllWindows()
-    #cv.imwrite("images/results/result%d_board.jpg" % i, virtual)
+    cv.imwrite("images/results/result%d_board.jpg" % i, virtual)
     plt.xlim([0, 2000])
     plt.ylim([0, 1125])
     txt = "AUTO-COLOR MASKING + BACKGROUND DIFFERENCE (%d)\n" % i
     plt.title(txt + dir_name)
-    #plt.savefig('images/results/result%d_plot.jpg' % i)
+    plt.savefig('images/results/result%d_plot.jpg' % i)
     plt.show()
 
 
