@@ -80,10 +80,10 @@ def getBackground():
 
     print "Please step away and click 's' when it's ready..."
     back1 = getVideo(cam1,'Background 1')
-    cv2.imwrite('images/setup/background/background1.png', back1)
+    cv2.imwrite('images/setup/demo/background/background1.png', back1)
     print "Please step away and click 's' when it's ready..."
     back2 = getVideo(cam2, 'Background 2')
-    cv2.imwrite('images/setup/background/background2.png', back2)
+    cv2.imwrite('images/setup/demo/background/background2.png', back2)
 
     cam1.release()
     cam2.release()
@@ -98,9 +98,9 @@ def getBlackboardCorners():
         print "Please touch the "+corners[i]+' corner of the blackboard with a marker.'
 
         corner1 = getVideo(cam1, 'Corner1')
-        cv2.imwrite('images/setup/corners/c1_corner%.2d.png'%i, corner1)
+        cv2.imwrite('images/setup/demo/corners/c1_corner%.2d.png'%i, corner1)
         corner2 = getVideo(cam2, 'Corner2')
-        cv2.imwrite('images/setup/corners/c2_corner%.2d.png'%i, corner2)
+        cv2.imwrite('images/setup/demo/corners/c2_corner%.2d.png'%i, corner2)
 
 
     cam1.release()
@@ -159,7 +159,7 @@ def changeExtension():
 
 if __name__ == '__main__':
     cv2.namedWindow("Finish")
-    init(100,setup=False,f=True,calib=False,colors=['live'])
+    init(150,setup=False,f=True,calib=False,colors=['demo2'])
     #calibrate(40)
     #changeExtension()
     print "All done."

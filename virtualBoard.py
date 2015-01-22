@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 def main():
     print "VIRTUAL BOARD\n"
     i = 101
-    dir_name = "images/frames/red/"
+    dir_name = "images/frames/test/"
     color_ball = 'r'
     roi_method = 'auto'
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
