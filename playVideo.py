@@ -37,6 +37,8 @@ def playSingleVideo(path, mask=True):
     
 def playTwoVideos(path, mask=False, marker=True):
     i = 0
+    fourcc = cv2.cv.FOURCC('m','p','4','v')
+    out = cv2.VideoWriter('video/result.mp4',fourcc)
     cv2.namedWindow("Frame sequence")
     print 'Press any key to play...'
     cv2.waitKey(0)
@@ -55,7 +57,7 @@ def playTwoVideos(path, mask=False, marker=True):
             img2 = cv2.resize(im2,(640,480))
 
         img = np.hstack((img1,img2))
-
+        out.write(img)
         cv2.imshow("Frame sequence",img)
         i = i + 1
         if i >= length:
@@ -63,7 +65,8 @@ def playTwoVideos(path, mask=False, marker=True):
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-    
+
+    out.release()
     cv2.destroyAllWindows()
 
 
