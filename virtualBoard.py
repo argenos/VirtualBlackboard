@@ -11,10 +11,15 @@ import matplotlib.pyplot as plt
 
 def main():
     print "VIRTUAL BOARD\n"
-    i = 101
-    dir_name = "images/frames/test/"
-    color_ball = 'r'
+    dir_name = "images/frames/demo_class/"
+    #dir_name = "/home/laverden/Documents/mas/cv/project/demo/"
+    color_ball = 'g'
     roi_method = 'auto'
+    # OUTPUT VARIABLES
+    write_files = False
+    calib_with_corners = True
+    i = 400
+
     files1 = sorted(np.array(glob.glob(dir_name + "c1_image*.png")))
     files2 = sorted(np.array(glob.glob(dir_name + "c2_image*.png")))
     bck_g1 = cv.imread("images/setup/background/background1.png")
@@ -44,17 +49,20 @@ def main():
         roi2_xy[0], roi2_xy[1], roi2_xy[2], roi2_xy[3] = Cropper.getROI(cal_frame2)
 
     # Color Calibration using the corner images.
-    color_ini1 = cv.imread("images/setup/corners/c1_corner01.png")
-    color_ini2 = cv.imread("images/setup/corners/c2_corner01.png")
-    #color_ini1 = cv.imread(files1[25])
-    #color_ini2 = cv.imread(files2[25])
+    if calib_with_corners:
+        color_ini1 = cv.imread("images/setup/corners/c1_corner01.png")
+        color_ini2 = cv.imread("images/setup/corners/c2_corner01.png")
+    else:
+        color_ini1 = cv.imread(files1[40])
+        color_ini2 = cv.imread(files2[40])
+
     color_ini1 = color_ini1[roi1_xy[1]:roi1_xy[3], roi1_xy[0]:roi1_xy[2], :]
     color_ini2 = color_ini2[roi2_xy[1]:roi2_xy[3], roi2_xy[0]:roi2_xy[2], :]
     Color.initializeBoundaries(color_ini1, color_ini2)
     # Initialization.
     cv.namedWindow("MarkerSide", cv.WINDOW_NORMAL)
     cv.namedWindow("MarkerTop", cv.WINDOW_NORMAL)
-    #cv.namedWindow("Canvas", cv.WINDOW_NORMAL)
+    cv.namedWindow("Canvas", cv.WINDOW_NORMAL)
     drawer.init()
     plt.figure()
 
@@ -94,7 +102,12 @@ def main():
 
         cv.imshow("MarkerSide", frame_c1)
         cv.imshow("MarkerTop", frame_c2)
-        #cv.imshow("Canvas", virtual)
+        cv.imshow("Canvas", virtual)
+
+        if write_files:
+            cv.imwrite("images/results/demo_%d/board/board_%.3d.jpg" % (i, frame_number), virtual)
+            cv.imwrite("images/results/demo_%d/detection/c1_%.3d.jpg" % (i, frame_number), frame_c1)
+            cv.imwrite("images/results/demo_%d/detection/c2_%.3d.jpg" % (i, frame_number), frame_c2)
 
         plt.scatter(point[0], -point[1]+virtual.shape[0], c=color_ball)
         k = cv.waitKey(1) & 0XFF
@@ -105,12 +118,13 @@ def main():
 
     cv.waitKey(10)
     cv.destroyAllWindows()
-    cv.imwrite("images/results/result%d_board.jpg" % i, virtual)
     plt.xlim([0, 2000])
     plt.ylim([0, 1125])
     txt = "AUTO-COLOR MASKING + BACKGROUND DIFFERENCE (%d)\n" % i
     plt.title(txt + dir_name)
-    plt.savefig('images/results/result%d_plot.jpg' % i)
+    if write_files:
+        cv.imwrite("images/results/result%d_board.jpg" % i, virtual)
+        plt.savefig('images/results/result%d_plot.jpg' % i)
     plt.show()
 
 
