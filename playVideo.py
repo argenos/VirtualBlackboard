@@ -15,6 +15,7 @@ length = glob.glob(path+'*.png').__len__()/2
 def playSingleVideo(path, mask=True):
     #print length
     i = 0
+    cv2.namedWindow("Frame sequence")
     print 'Press any key to play...'
     cv2.waitKey(0)
 
@@ -24,7 +25,7 @@ def playSingleVideo(path, mask=True):
         if mask:
             img = cv2.resize(im,(640,480))
             img = color.getColorMask(img,'b')
-        cv2.imshow("Picture",img)
+        cv2.imshow("Frame sequence",img)
         i = i + 1
         if i >= length:
             i = 0
@@ -36,13 +37,14 @@ def playSingleVideo(path, mask=True):
     
 def playTwoVideos(path, mask=False, marker=True):
     i = 0
-
+    cv2.namedWindow("Frame sequence")
     print 'Press any key to play...'
     cv2.waitKey(0)
     while True:
+
         im1 = cv2.imread(path+'c1_image%.3d.png'%i)
         im2 = cv2.imread(path+'c2_image%.3d.png'%i)
-        
+
         if mask:
             img1 = cv2.resize(im1,(640,480))
             img2 = cv2.resize(im2,(640,480))
@@ -52,13 +54,13 @@ def playTwoVideos(path, mask=False, marker=True):
             img1 = cv2.resize(im1,(640,480))
             img2 = cv2.resize(im2,(640,480))
 
-        img = np.hstack((img1,img2))        
-        
-        cv2.imshow("Picture",img)
+        img = np.hstack((img1,img2))
+
+        cv2.imshow("Frame sequence",img)
         i = i + 1
         if i >= length:
             i = 0
-        
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     
